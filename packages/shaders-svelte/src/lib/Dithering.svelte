@@ -1,57 +1,87 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
-	import { ditheringFragmentShader, ShaderMount } from '@paper-design/shaders';
-	import { toCssSize, toDitheringUniforms, type DitheringSvelteProps, type ShaderDimensions } from './internal/common';
+	import { onDestroy, onMount } from "svelte";
+	import type { HTMLAttributes } from "svelte/elements";
+	import {
+		ditheringFragmentShader,
+		ShaderMount,
+	} from "@paper-design/shaders";
+	import {
+		toCssSize,
+		toDitheringUniforms,
+		type DitheringSvelteProps,
+		type ShaderDimensions,
+	} from "./internal/common";
 
-	const props = $props<{
+	type DivRestProps = Omit<
+		HTMLAttributes<HTMLDivElement>,
+		"type" | "class" | "style"
+	>;
+
+	type DitheringProps = {
 		width?: ShaderDimensions;
 		height?: ShaderDimensions;
-		colorBack?: DitheringSvelteProps['colorBack'];
-		colorFront?: DitheringSvelteProps['colorFront'];
-		shape?: DitheringSvelteProps['shape'];
-		type?: DitheringSvelteProps['type'];
-		size?: DitheringSvelteProps['size'];
-		speed?: DitheringSvelteProps['speed'];
-		frame?: DitheringSvelteProps['frame'];
-		scale?: DitheringSvelteProps['scale'];
-		rotation?: DitheringSvelteProps['rotation'];
-		offsetX?: DitheringSvelteProps['offsetX'];
-		offsetY?: DitheringSvelteProps['offsetY'];
-		fit?: DitheringSvelteProps['fit'];
-		worldWidth?: DitheringSvelteProps['worldWidth'];
-		worldHeight?: DitheringSvelteProps['worldHeight'];
-		originX?: DitheringSvelteProps['originX'];
-		originY?: DitheringSvelteProps['originY'];
-		minPixelRatio?: DitheringSvelteProps['minPixelRatio'];
-		maxPixelCount?: DitheringSvelteProps['maxPixelCount'];
-	}>();
+		colorBack?: DitheringSvelteProps["colorBack"];
+		colorFront?: DitheringSvelteProps["colorFront"];
+		shape?: DitheringSvelteProps["shape"];
+		type?: DitheringSvelteProps["type"];
+		size?: DitheringSvelteProps["size"];
+		speed?: DitheringSvelteProps["speed"];
+		frame?: DitheringSvelteProps["frame"];
+		scale?: DitheringSvelteProps["scale"];
+		rotation?: DitheringSvelteProps["rotation"];
+		offsetX?: DitheringSvelteProps["offsetX"];
+		offsetY?: DitheringSvelteProps["offsetY"];
+		fit?: DitheringSvelteProps["fit"];
+		worldWidth?: DitheringSvelteProps["worldWidth"];
+		worldHeight?: DitheringSvelteProps["worldHeight"];
+		originX?: DitheringSvelteProps["originX"];
+		originY?: DitheringSvelteProps["originY"];
+		minPixelRatio?: DitheringSvelteProps["minPixelRatio"];
+		maxPixelCount?: DitheringSvelteProps["maxPixelCount"];
+		class?: HTMLAttributes<HTMLDivElement>["class"];
+		style?: HTMLAttributes<HTMLDivElement>["style"];
+	} & DivRestProps;
 
-	const width = $derived(props.width ?? '100%');
-	const height = $derived(props.height ?? '100%');
-	const colorBack = $derived(props.colorBack ?? '#301c2a');
-	const colorFront = $derived(props.colorFront ?? '#56ae6c');
-	const shape = $derived(props.shape ?? 'warp');
-	const type = $derived(props.type ?? '4x4');
-	const size = $derived(props.size ?? 1);
-	const speed = $derived(props.speed ?? 1);
-	const frame = $derived(props.frame ?? 0);
-	const scale = $derived(props.scale ?? 1);
-	const rotation = $derived(props.rotation ?? 0);
-	const offsetX = $derived(props.offsetX ?? 0);
-	const offsetY = $derived(props.offsetY ?? 0);
-	const fit = $derived(props.fit ?? 'none');
-	const worldWidth = $derived(props.worldWidth ?? 0);
-	const worldHeight = $derived(props.worldHeight ?? 0);
-	const originX = $derived(props.originX ?? 0.5);
-	const originY = $derived(props.originY ?? 0.5);
-	const minPixelRatio = $derived(props.minPixelRatio ?? 2);
-	const maxPixelCount = $derived(props.maxPixelCount ?? 1920 * 1080 * 4);
+	let {
+		width = "100%",
+		height = 320,
+		colorBack = "#301c2a",
+		colorFront = "#56ae6c",
+		shape = "warp",
+		type = "4x4",
+		size = 1,
+		speed = 1,
+		frame = 0,
+		scale = 1,
+		rotation = 0,
+		offsetX = 0,
+		offsetY = 0,
+		fit = "none",
+		worldWidth = 0,
+		worldHeight = 0,
+		originX = 0.5,
+		originY = 0.5,
+		minPixelRatio = 2,
+		maxPixelCount = 1920 * 1080 * 4,
+		class: className,
+		style: styleValue,
+		...restProps
+	}: DitheringProps = $props();
 
-	let host: HTMLDivElement | undefined;
-	let shader: ShaderMount | undefined;
+	const hostStyle = $derived.by(() => {
+		const styles: string[] = [];
+		if (width !== undefined)
+			styles.push(`width:${toCssSize(width, "100%")}`);
+		if (height !== undefined)
+			styles.push(`height:${toCssSize(height, "100%")}`);
 
-	function currentUniforms() {
-		return toDitheringUniforms({
+		if (typeof styleValue === "string" && styleValue.trim().length > 0)
+			styles.push(styleValue.trim());
+		return styles.join(";");
+	});
+
+	const uniforms = $derived(
+		toDitheringUniforms({
 			colorBack,
 			colorFront,
 			shape,
@@ -65,30 +95,49 @@
 			worldWidth,
 			worldHeight,
 			originX,
-			originY
-		});
-	}
+			originY,
+		}),
+	);
+
+	let host: HTMLDivElement | undefined;
+	let shader: ShaderMount | undefined;
 
 	onMount(() => {
-		if (typeof window === 'undefined' || !host) return;
+		if (typeof window === "undefined" || !host) return;
 		shader = new ShaderMount(
 			host,
 			ditheringFragmentShader,
-			currentUniforms(),
+			uniforms,
 			undefined,
 			speed,
 			frame,
 			minPixelRatio,
-			maxPixelCount
+			maxPixelCount,
 		);
 	});
 
 	$effect(() => {
 		if (!shader) return;
-		shader.setUniforms(currentUniforms());
+		shader.setUniforms(uniforms);
+	});
+
+	$effect(() => {
+		if (!shader) return;
 		shader.setSpeed(speed);
-		shader.setFrame(frame ?? 0);
+	});
+
+	$effect(() => {
+		if (!shader) return;
+		shader.setFrame(frame);
+	});
+
+	$effect(() => {
+		if (!shader) return;
 		shader.setMinPixelRatio(minPixelRatio);
+	});
+
+	$effect(() => {
+		if (!shader) return;
 		shader.setMaxPixelCount(maxPixelCount);
 	});
 
@@ -98,4 +147,4 @@
 	});
 </script>
 
-<div bind:this={host} style:width={toCssSize(width, '100%')} style:height={toCssSize(height, '100%')}></div>
+<div {...restProps} class={className} style={hostStyle} bind:this={host}></div>

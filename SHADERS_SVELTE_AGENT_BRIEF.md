@@ -1,10 +1,10 @@
-# Agent Handoff: `@devmischief/paper-shaders-svelte`
+# Agent Handoff: `@devmischief/shaders-svelte`
 
 This document is the source of truth for continuing the Svelte wrapper package work.
 
 ## Primary Goal
 
-Build and publish a Svelte package named `@devmischief/paper-shaders-svelte` that provides Svelte-native components with an API close to `@paper-design/shaders-react`.
+Build and publish a Svelte package named `@devmischief/shaders-svelte` that provides Svelte-native components with an API close to `@paper-design/shaders-react`.
 
 The first target component is `Dithering`.
 
@@ -13,7 +13,7 @@ The first target component is `Dithering`.
 ## Product Intent
 
 - Svelte developers should be able to install and use shader components easily:
-  - `pnpm add @devmischief/paper-shaders-svelte`
+  - `pnpm add @devmischief/shaders-svelte`
 - They should not need to manually install core shaders unless they want to:
   - `@paper-design/shaders` is included as a package dependency in the wrapper package.
 - API should feel familiar to users coming from `@paper-design/shaders-react`.
@@ -33,7 +33,7 @@ The first target component is `Dithering`.
 
 A starter package scaffold was created previously with these key parts:
 
-- `package.json` for `@devmischief/paper-shaders-svelte`
+- `package.json` for `@devmischief/shaders-svelte`
 - Svelte package config and tsconfig
 - `src/lib/Dithering.svelte`
 - `src/lib/internal/common.ts`
@@ -167,7 +167,7 @@ Set sensible defaults that avoid freezing/stutter on heavy pages:
 ## Notes for Any New Agent
 
 - Do not refactor the portfolio app unless explicitly asked.
-- Keep all package work scoped to `@devmischief/paper-shaders-svelte`.
+- Keep all package work scoped to `@devmischief/shaders-svelte`.
 - Preserve React-like API names unless there is a strong Svelte-specific reason.
 - If changing prop names, document migration clearly.
 
