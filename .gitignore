@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+.pnpm-store
+dist
+.svelte-kit
+.vite
+build
+.env
+.env.*
+!.env.example
