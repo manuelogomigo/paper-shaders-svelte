@@ -31,7 +31,8 @@
 	},
 	"dependencies": {
 		"@devmischief/shaders-svelte": "link:../../packages/shaders-svelte",
-		"mode-watcher": "^1.1.0",
-		"@paper-design/shaders": "^0.0.76"
+		"@paper-design/shaders": "^0.0.76",
+		"bits-ui": "^2.18.0",
+		"mode-watcher": "^1.1.0"
 	}
 }

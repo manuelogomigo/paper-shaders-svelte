@@ -1,32 +1,51 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import type { Component } from "svelte";
     import LazyShader from "$lib/LazyShader.svelte";
     import {
+        preloadGemSmoke,
+        preloadHeatmap,
+        preloadLiquidMetal,
+        ColorPanels,
         Dithering,
         DotGrid,
         DotOrbit,
         FlutedGlass,
+        GemSmoke,
+        GodRays,
         GrainGradient,
         HalftoneCMYK,
         HalftoneDots,
+        Heatmap,
         ImageDithering,
+        LiquidMetal,
         MeshGradient,
+        Metaballs,
         NeuroNoise,
         PaperTexture,
+        PerlinNoise,
+        PulsingBorder,
+        SimplexNoise,
+        SmokeRing,
         Spiral,
         StaticMeshGradient,
         StaticRadialGradient,
         Swirl,
+        Voronoi,
         Warp,
         Water,
         Waves,
     } from "@devmischief/shaders-svelte";
+    import AspectRatio from "$lib/aspectRatio.svelte";
 
     type ReadyShader = {
         name: string;
         href: string;
         image?: string;
-        component: Component<{ width: number; height: number }>;
+        component: Component<{
+            width: number | string;
+            height: number | string;
+        }>;
         status: "ready";
     };
 
@@ -52,7 +71,13 @@
             image: "/assets/fluted-glass.png",
             status: "ready",
         },
-        { name: "Water", href: "/water", component: Water, image: "/assets/water.png", status: "ready" },
+        {
+            name: "Water",
+            href: "/water",
+            component: Water,
+            image: "/assets/water.png",
+            status: "ready",
+        },
         {
             name: "Image Dithering",
             href: "/image-dithering",
@@ -77,9 +102,27 @@
     ];
 
     const logoAnimations: ShaderCard[] = [
-        { name: "Heatmap", status: "coming-soon" },
-        { name: "Liquid Metal", status: "coming-soon" },
-        { name: "Gem Smoke", status: "coming-soon" },
+        {
+            name: "Heatmap",
+            href: "/heatmap",
+            component: Heatmap,
+            image: "/assets/heatmap.png",
+            status: "ready",
+        },
+        {
+            name: "Liquid Metal",
+            href: "/liquid-metal",
+            component: LiquidMetal,
+            image: "/assets/liquid-metal.png",
+            status: "ready",
+        },
+        {
+            name: "Gem Smoke",
+            href: "/gem-smoke",
+            component: GemSmoke,
+            image: "/assets/gem-smoke.png",
+            status: "ready",
+        },
     ];
 
     const effects: ShaderCard[] = [
@@ -167,14 +210,62 @@
             image: "/assets/neuro-noise.png",
             status: "ready",
         },
-        { name: "Perlin Noise", status: "coming-soon" },
-        { name: "Simplex Noise", status: "coming-soon" },
-        { name: "Voronoi", status: "coming-soon" },
-        { name: "Pulsing Border", status: "coming-soon" },
-        { name: "Metaballs", status: "coming-soon" },
-        { name: "Color Panels", status: "coming-soon" },
-        { name: "Smoke Ring", status: "coming-soon" },
-        { name: "God Rays", status: "coming-soon" },
+        {
+            name: "Perlin Noise",
+            href: "/perlin-noise",
+            component: PerlinNoise,
+            image: "/assets/perlin-noise.png",
+            status: "ready",
+        },
+        {
+            name: "Simplex Noise",
+            href: "/simplex-noise",
+            component: SimplexNoise,
+            image: "/assets/simplex-noise.png",
+            status: "ready",
+        },
+        {
+            name: "Voronoi",
+            href: "/voronoi",
+            component: Voronoi,
+            image: "/assets/voronoi.png",
+            status: "ready",
+        },
+        {
+            name: "Pulsing Border",
+            href: "/pulsing-border",
+            component: PulsingBorder,
+            image: "/assets/pulsing-border.png",
+            status: "ready",
+        },
+        {
+            name: "Metaballs",
+            href: "/metaballs",
+            component: Metaballs,
+            image: "/assets/metaballs.png",
+            status: "ready",
+        },
+        {
+            name: "Color Panels",
+            href: "/color-panels",
+            component: ColorPanels,
+            image: "/assets/color-panels.png",
+            status: "ready",
+        },
+        {
+            name: "Smoke Ring",
+            href: "/smoke-ring",
+            component: SmokeRing,
+            image: "/assets/smoke-ring.png",
+            status: "ready",
+        },
+        {
+            name: "God Rays",
+            href: "/god-rays",
+            component: GodRays,
+            image: "/assets/god-rays.png",
+            status: "ready",
+        },
     ];
 
     const sections: { title: string; items: ShaderCard[] }[] = [
@@ -185,6 +276,23 @@
 
     let copied = $state(false);
     const installCmd = "npm i @devmischief/shaders-svelte";
+
+    // Pre-warm the expensive image-processing caches for Heatmap and Liquid Metal
+    // during idle time so the first hover on those cards is instant.
+    onMount(() => {
+        const defaultLogo =
+            "https://shaders.paper.design/images/logos/diamond.svg";
+        const schedule =
+            typeof window.requestIdleCallback === "function"
+                ? (cb: () => void) =>
+                      window.requestIdleCallback(cb, { timeout: 1500 })
+                : (cb: () => void) => window.setTimeout(cb, 0);
+        schedule(() => {
+            void preloadHeatmap(defaultLogo).catch(() => {});
+            void preloadLiquidMetal(defaultLogo).catch(() => {});
+            void preloadGemSmoke(defaultLogo).catch(() => {});
+        });
+    });
 
     async function copyInstall() {
         try {
@@ -338,7 +446,26 @@
                                     class="group flex flex-col gap-3 outline-none"
                                     href={shader.href}
                                 >
-                                    <div
+                                    <AspectRatio
+                                        class="overflow-hidden"
+                                        ratio={3 / 3}
+                                    >
+                                        {#if shader.image}
+                                            <LazyShader
+                                                component={ShaderPreview}
+                                                image={shader.image}
+                                                alt={shader.name}
+                                                width={480}
+                                                height={480}
+                                            />
+                                        {:else}
+                                            <ShaderPreview
+                                                width={480}
+                                                height={480}
+                                            />
+                                        {/if}
+                                    </AspectRatio>
+                                    <!-- <div
                                         class="relative flex aspect-3/3 items-center justify-center overflow-hidden rounded-xl border border-pg-divider bg-pg-surface transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-pg-border group-hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)] group-focus-visible:border-pg-text-bright"
                                     >
                                         {#if shader.image}
@@ -346,16 +473,16 @@
                                                 component={ShaderPreview}
                                                 image={shader.image}
                                                 alt={shader.name}
-                                                width={640}
+                                                width={480}
                                                 height={480}
                                             />
                                         {:else}
                                             <ShaderPreview
-                                                width={640}
+                                                width={480}
                                                 height={480}
                                             />
                                         {/if}
-                                    </div>
+                                    </div> -->
                                     <div
                                         class="flex items-center justify-between"
                                     >

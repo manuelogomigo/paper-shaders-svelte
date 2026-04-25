@@ -52,7 +52,7 @@
 	let {
 		width = "100%",
 		height = 320,
-		image = "https://paper.design/flowers.webp",
+		image = "/assets/flowers.webp",
 		colorBack = "#000c38",
 		colorFront = "#94ffaf",
 		colorHighlight = "#eaff94",

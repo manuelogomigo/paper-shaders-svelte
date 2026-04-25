@@ -2,17 +2,16 @@
 	import { onDestroy } from "svelte";
 	import type { HTMLAttributes } from "svelte/elements";
 	import {
-		emptyPixel,
 		getShaderNoiseTexture,
-		paperTextureFragmentShader,
+		pulsingBorderFragmentShader,
 		ShaderMount,
 		type ShaderMountUniforms,
 	} from "@paper-design/shaders";
 	import {
 		processShaderUniforms,
 		toCssSize,
-		toPaperTextureUniforms,
-		type PaperTextureSvelteProps,
+		toPulsingBorderUniforms,
+		type PulsingBorderSvelteProps,
 		type ShaderDimensions,
 	} from "./internal/common";
 
@@ -21,36 +20,40 @@
 		"type" | "class" | "style"
 	>;
 
-	type PaperTextureProps = {
+	type PulsingBorderProps = {
 		width?: ShaderDimensions;
 		height?: ShaderDimensions;
-		image?: PaperTextureSvelteProps["image"];
-		colorBack?: PaperTextureSvelteProps["colorBack"];
-		colorFront?: PaperTextureSvelteProps["colorFront"];
-		contrast?: PaperTextureSvelteProps["contrast"];
-		roughness?: PaperTextureSvelteProps["roughness"];
-		fiber?: PaperTextureSvelteProps["fiber"];
-		fiberSize?: PaperTextureSvelteProps["fiberSize"];
-		crumples?: PaperTextureSvelteProps["crumples"];
-		crumpleSize?: PaperTextureSvelteProps["crumpleSize"];
-		folds?: PaperTextureSvelteProps["folds"];
-		foldCount?: PaperTextureSvelteProps["foldCount"];
-		fade?: PaperTextureSvelteProps["fade"];
-		drops?: PaperTextureSvelteProps["drops"];
-		seed?: PaperTextureSvelteProps["seed"];
-		scale?: PaperTextureSvelteProps["scale"];
-		rotation?: PaperTextureSvelteProps["rotation"];
-		offsetX?: PaperTextureSvelteProps["offsetX"];
-		offsetY?: PaperTextureSvelteProps["offsetY"];
-		fit?: PaperTextureSvelteProps["fit"];
-		worldWidth?: PaperTextureSvelteProps["worldWidth"];
-		worldHeight?: PaperTextureSvelteProps["worldHeight"];
-		originX?: PaperTextureSvelteProps["originX"];
-		originY?: PaperTextureSvelteProps["originY"];
-		speed?: PaperTextureSvelteProps["speed"];
-		frame?: PaperTextureSvelteProps["frame"];
-		minPixelRatio?: PaperTextureSvelteProps["minPixelRatio"];
-		maxPixelCount?: PaperTextureSvelteProps["maxPixelCount"];
+		colors?: PulsingBorderSvelteProps["colors"];
+		colorBack?: PulsingBorderSvelteProps["colorBack"];
+		roundness?: PulsingBorderSvelteProps["roundness"];
+		thickness?: PulsingBorderSvelteProps["thickness"];
+		softness?: PulsingBorderSvelteProps["softness"];
+		aspectRatio?: PulsingBorderSvelteProps["aspectRatio"];
+		intensity?: PulsingBorderSvelteProps["intensity"];
+		bloom?: PulsingBorderSvelteProps["bloom"];
+		spots?: PulsingBorderSvelteProps["spots"];
+		spotSize?: PulsingBorderSvelteProps["spotSize"];
+		pulse?: PulsingBorderSvelteProps["pulse"];
+		smoke?: PulsingBorderSvelteProps["smoke"];
+		smokeSize?: PulsingBorderSvelteProps["smokeSize"];
+		margin?: PulsingBorderSvelteProps["margin"];
+		marginLeft?: PulsingBorderSvelteProps["marginLeft"];
+		marginRight?: PulsingBorderSvelteProps["marginRight"];
+		marginTop?: PulsingBorderSvelteProps["marginTop"];
+		marginBottom?: PulsingBorderSvelteProps["marginBottom"];
+		scale?: PulsingBorderSvelteProps["scale"];
+		rotation?: PulsingBorderSvelteProps["rotation"];
+		offsetX?: PulsingBorderSvelteProps["offsetX"];
+		offsetY?: PulsingBorderSvelteProps["offsetY"];
+		fit?: PulsingBorderSvelteProps["fit"];
+		worldWidth?: PulsingBorderSvelteProps["worldWidth"];
+		worldHeight?: PulsingBorderSvelteProps["worldHeight"];
+		originX?: PulsingBorderSvelteProps["originX"];
+		originY?: PulsingBorderSvelteProps["originY"];
+		speed?: PulsingBorderSvelteProps["speed"];
+		frame?: PulsingBorderSvelteProps["frame"];
+		minPixelRatio?: PulsingBorderSvelteProps["minPixelRatio"];
+		maxPixelCount?: PulsingBorderSvelteProps["maxPixelCount"];
 		class?: HTMLAttributes<HTMLDivElement>["class"];
 		style?: HTMLAttributes<HTMLDivElement>["style"];
 	} & DivRestProps;
@@ -58,66 +61,74 @@
 	let {
 		width = "100%",
 		height = 320,
-		image = "/assets/flowers.webp",
-		colorBack = "#ffffff",
-		colorFront = "#9fadbc",
-		contrast = 0.3,
-		roughness = 0.4,
-		fiber = 0.3,
-		fiberSize = 0.2,
-		crumples = 0.3,
-		crumpleSize = 0.35,
-		folds = 0.65,
-		foldCount = 5,
-		fade = 0,
-		drops = 0.2,
-		seed = 5.8,
+		colors,
+		colorBack = "#000000",
+		roundness = 0.25,
+		thickness = 0.1,
+		softness = 0.75,
+		aspectRatio = "auto",
+		intensity = 0.2,
+		bloom = 0.25,
+		spots = 4,
+		spotSize = 0.5,
+		pulse = 0.25,
+		smoke = 0.3,
+		smokeSize = 0.6,
+		margin = 0,
+		marginLeft,
+		marginRight,
+		marginTop,
+		marginBottom,
 		scale = 0.6,
 		rotation = 0,
 		offsetX = 0,
 		offsetY = 0,
-		fit = "cover",
+		fit = "contain",
 		worldWidth = 0,
 		worldHeight = 0,
 		originX = 0.5,
 		originY = 0.5,
-		speed = 0,
+		speed = 1,
 		frame = 0,
 		minPixelRatio = 2,
 		maxPixelCount = 1920 * 1080 * 4,
 		class: className,
 		style: styleValue,
 		...restProps
-	}: PaperTextureProps = $props();
+	}: PulsingBorderProps = $props();
 
 	const hostStyle = $derived.by(() => {
 		const styles: string[] = [];
 		if (width !== undefined)
 			styles.push(`width:${toCssSize(width, "100%")}`);
 		if (height !== undefined)
-			styles.push(`height:${toCssSize(height, "320px")}`);
+			styles.push(`height:${toCssSize(height, "100%")}`);
 		if (typeof styleValue === "string" && styleValue.trim().length > 0)
 			styles.push(styleValue.trim());
 		return styles.join(";");
 	});
 
 	const uniformsInput = $derived.by(() => {
-		const base = toPaperTextureUniforms(
+		return toPulsingBorderUniforms(
 			{
-				image,
+				colors,
 				colorBack,
-				colorFront,
-				contrast,
-				roughness,
-				fiber,
-				fiberSize,
-				crumples,
-				crumpleSize,
-				folds,
-				foldCount,
-				fade,
-				drops,
-				seed,
+				roundness,
+				thickness,
+				softness,
+				aspectRatio,
+				intensity,
+				bloom,
+				spots,
+				spotSize,
+				pulse,
+				smoke,
+				smokeSize,
+				margin,
+				marginLeft,
+				marginRight,
+				marginTop,
+				marginBottom,
 				scale,
 				rotation,
 				offsetX,
@@ -129,14 +140,9 @@
 				originY,
 			},
 			{
-				image: undefined,
 				noiseTexture: getShaderNoiseTexture(),
 			},
-		);
-		return {
-			...base,
-			u_image: image || emptyPixel,
-		} as Record<string, unknown>;
+		) as Record<string, unknown>;
 	});
 
 	let uniforms = $state<ShaderMountUniforms | undefined>(undefined);
@@ -161,20 +167,20 @@
 		if (!uniforms) return;
 		shader = new ShaderMount(
 			host,
-			paperTextureFragmentShader,
+			pulsingBorderFragmentShader,
 			uniforms,
 			undefined,
 			speed,
 			frame,
 			minPixelRatio,
 			maxPixelCount,
-			["u_image"],
 		);
 	});
 
 	$effect(() => {
-		if (!shader || !uniforms) return;
-		shader.setUniforms(uniforms);
+		const next = uniforms;
+		if (!shader || !next) return;
+		shader.setUniforms(next);
 	});
 
 	$effect(() => {

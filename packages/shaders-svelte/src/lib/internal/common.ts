@@ -1,40 +1,66 @@
 import {
+	colorPanelsMeta,
 	defaultPatternSizing,
 	dotOrbitMeta,
 	emptyPixel,
+	gemSmokeMeta,
+	godRaysMeta,
 	grainGradientMeta,
+	heatmapMeta,
+	toProcessedGemSmoke,
+	toProcessedHeatmap,
+	toProcessedLiquidMetal,
 	meshGradientMeta,
+	metaballsMeta,
+	pulsingBorderMeta,
+	simplexNoiseMeta,
+	smokeRingMeta,
 	staticMeshGradientMeta,
 	staticRadialGradientMeta,
 	swirlMeta,
+	voronoiMeta,
 	warpMeta,
+	type ColorPanelsParams,
 	type DitheringParams,
 	type DotGridParams,
 	type DotOrbitParams,
 	type FlutedGlassParams,
+	type GemSmokeParams,
+	type GodRaysParams,
 	type GrainGradientParams,
 	type HalftoneCmykParams,
+	type HeatmapParams,
 	type HalftoneDotsParams,
 	type ImageDitheringParams,
+	type LiquidMetalParams,
 	type MeshGradientParams,
+	type MetaballsParams,
 	type NeuroNoiseParams,
 	type PaperTextureParams,
+	type PerlinNoiseParams,
+	type PulsingBorderParams,
+	type SimplexNoiseParams,
+	type SmokeRingParams,
 	type StaticMeshGradientParams,
 	type SpiralParams,
 	type StaticRadialGradientParams,
 	type SwirlParams,
+	type VoronoiParams,
 	type WarpParams,
 	type WaterParams,
 	type WavesParams,
 	DitheringShapes,
 	DitheringTypes,
 	DotGridShapes,
+	GemSmokeShapes,
 	GlassDistortionShapes,
 	GlassGridShapes,
 	GrainGradientShapes,
 	HalftoneCmykTypes,
 	HalftoneDotsGrids,
 	HalftoneDotsTypes,
+	LiquidMetalShapes,
+	PulsingBorderAspectRatios,
 	WarpPatterns,
 	getShaderColorFromString,
 	ShaderFitOptions,
@@ -93,7 +119,36 @@ export type HalftoneCMYKSvelteProps = HalftoneCmykParams & {
 	maxPixelCount?: number;
 };
 
+export type HeatmapSvelteProps = Omit<HeatmapParams, 'image'> & {
+	image?: HeatmapParams['image'];
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type LiquidMetalSvelteProps = LiquidMetalParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type GemSmokeSvelteProps = GemSmokeParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
 export type MeshGradientSvelteProps = MeshGradientParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type MetaballsSvelteProps = MetaballsParams & {
 	width?: ShaderDimensions;
 	height?: ShaderDimensions;
 	minPixelRatio?: number;
@@ -135,6 +190,20 @@ export type DotGridSvelteProps = DotGridParams & {
 	maxPixelCount?: number;
 };
 
+export type ColorPanelsSvelteProps = ColorPanelsParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type GodRaysSvelteProps = GodRaysParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
 export type WarpSvelteProps = WarpParams & {
 	width?: ShaderDimensions;
 	height?: ShaderDimensions;
@@ -164,6 +233,41 @@ export type WavesSvelteProps = WavesParams & {
 };
 
 export type NeuroNoiseSvelteProps = NeuroNoiseParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type PerlinNoiseSvelteProps = PerlinNoiseParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type PulsingBorderSvelteProps = PulsingBorderParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type SimplexNoiseSvelteProps = SimplexNoiseParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type SmokeRingSvelteProps = SmokeRingParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type VoronoiSvelteProps = VoronoiParams & {
 	width?: ShaderDimensions;
 	height?: ShaderDimensions;
 	minPixelRatio?: number;
@@ -933,6 +1037,507 @@ export function toNeuroNoiseUniforms(params: NeuroNoiseSvelteProps): ShaderMount
 	};
 }
 
+export function toPerlinNoiseUniforms(params: PerlinNoiseSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	return {
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#632ad5'),
+		u_colorFront: getShaderColorFromString(params.colorFront ?? '#fccff7'),
+		u_proportion: params.proportion ?? 0.35,
+		u_softness: params.softness ?? 0.1,
+		u_octaveCount: params.octaveCount ?? 1,
+		u_persistence: params.persistence ?? 1,
+		u_lacunarity: params.lacunarity ?? 1.5,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const simplexNoiseDefaultColors = ['#e7cae5', '#110d21', '#442c44', '#e7bcbc', '#fff5f5'];
+
+export function toSimplexNoiseUniforms(params: SimplexNoiseSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? 0.2,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : simplexNoiseDefaultColors;
+	const capped = source.slice(0, simplexNoiseMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_stepsPerColor: params.stepsPerColor ?? 2,
+		u_softness: params.softness ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const voronoiDefaultColors = ['#ff8247', '#ffe53d'];
+
+export function toVoronoiUniforms(
+	params: VoronoiSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? 0.5,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source = params.colors && params.colors.length > 0 ? params.colors : voronoiDefaultColors;
+	const capped = source.slice(0, voronoiMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_stepsPerColor: params.stepsPerColor ?? 3,
+		u_colorGap: getShaderColorFromString(params.colorGap ?? '#2e0000'),
+		u_colorGlow: getShaderColorFromString(params.colorGlow ?? '#ffffff'),
+		u_distortion: params.distortion ?? 0.4,
+		u_gap: params.gap ?? 0.04,
+		u_glow: params.glow ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const pulsingBorderDefaultColors = ['#0dc1fd', '#d915ef', '#ff3f2ecc'];
+
+export function toPulsingBorderUniforms(
+	params: PulsingBorderSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? 0.6,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+	const margin = params.margin ?? 0;
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : pulsingBorderDefaultColors;
+	const capped = source.slice(0, pulsingBorderMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_roundness: params.roundness ?? 0.25,
+		u_thickness: params.thickness ?? 0.1,
+		u_softness: params.softness ?? 0.75,
+		u_marginLeft: params.marginLeft ?? margin,
+		u_marginRight: params.marginRight ?? margin,
+		u_marginTop: params.marginTop ?? margin,
+		u_marginBottom: params.marginBottom ?? margin,
+		u_aspectRatio: PulsingBorderAspectRatios[params.aspectRatio ?? 'auto'],
+		u_intensity: params.intensity ?? 0.2,
+		u_bloom: params.bloom ?? 0.25,
+		u_spots: params.spots ?? 4,
+		u_spotSize: params.spotSize ?? 0.5,
+		u_pulse: params.pulse ?? 0.25,
+		u_smoke: params.smoke ?? 0.3,
+		u_smokeSize: params.smokeSize ?? 0.6,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const metaballsDefaultColors = ['#6e33cc', '#ff5500', '#ffc105', '#ffc800', '#f585ff'];
+
+export function toMetaballsUniforms(
+	params: MetaballsSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : metaballsDefaultColors;
+	const capped = source.slice(0, metaballsMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_count: params.count ?? 10,
+		u_size: params.size ?? 0.83,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const colorPanelsDefaultColors = [
+	'#ff9d00',
+	'#fd4f30',
+	'#809bff',
+	'#6d2eff',
+	'#333aff',
+	'#f15cff',
+	'#ffd557'
+];
+
+export function toColorPanelsUniforms(params: ColorPanelsSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? 0.8,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : colorPanelsDefaultColors;
+	const capped = source.slice(0, colorPanelsMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_density: params.density ?? 3,
+		u_angle1: params.angle1 ?? 0,
+		u_angle2: params.angle2 ?? 0,
+		u_length: params.length ?? 1.1,
+		u_edges: params.edges ?? true,
+		u_blur: params.blur ?? 0,
+		u_fadeIn: params.fadeIn ?? 1,
+		u_fadeOut: params.fadeOut ?? 0.3,
+		u_gradient: params.gradient ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const smokeRingDefaultColors = ['#ffffff'];
+
+export function toSmokeRingUniforms(
+	params: SmokeRingSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? 0.8,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : smokeRingDefaultColors;
+	const capped = source.slice(0, smokeRingMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_noiseScale: params.noiseScale ?? 3,
+		u_thickness: params.thickness ?? 0.65,
+		u_radius: params.radius ?? 0.25,
+		u_innerShape: params.innerShape ?? 0.7,
+		u_noiseIterations: params.noiseIterations ?? 8,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const godRaysDefaultColors = ['#a600ff6e', '#6200fff0', '#ffffff', '#33fff5'];
+
+export function toGodRaysUniforms(
+	params: GodRaysSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? -0.55,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source = params.colors && params.colors.length > 0 ? params.colors : godRaysDefaultColors;
+	const capped = source.slice(0, godRaysMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colorBloom: getShaderColorFromString(params.colorBloom ?? '#0000ff'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_bloom: params.bloom ?? 0.4,
+		u_intensity: params.intensity ?? 0.8,
+		u_density: params.density ?? 0.3,
+		u_spotty: params.spotty ?? 0.3,
+		u_midSize: params.midSize ?? 0.2,
+		u_midIntensity: params.midIntensity ?? 0.4,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const heatmapDefaultColors = ['#a600ff6e', '#6200fff0', '#ffffff', '#33fff5', '#33cc99'];
+
+export function toHeatmapUniforms(
+	params: HeatmapSvelteProps,
+	assets?: { image?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? 0.75,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source = params.colors && params.colors.length > 0 ? params.colors : heatmapDefaultColors;
+	const capped = source.slice(0, heatmapMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_image: assets?.image,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_contour: params.contour ?? 0.5,
+		u_angle: params.angle ?? 0,
+		u_noise: params.noise ?? 0,
+		u_innerGlow: params.innerGlow ?? 0.5,
+		u_outerGlow: params.outerGlow ?? 0.5,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+export function toLiquidMetalUniforms(
+	params: LiquidMetalSvelteProps,
+	assets?: { image?: HTMLImageElement; hasImage?: boolean }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? 0.6,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	return {
+		u_image: assets?.image,
+		u_isImage: assets?.hasImage ?? false,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#aaaaac'),
+		u_colorTint: getShaderColorFromString(params.colorTint ?? '#ffffff'),
+		u_shape: LiquidMetalShapes[params.shape ?? 'diamond'],
+		u_repetition: params.repetition ?? 2,
+		u_softness: params.softness ?? 0.1,
+		u_shiftRed: params.shiftRed ?? 0.3,
+		u_shiftBlue: params.shiftBlue ?? 0.3,
+		u_distortion: params.distortion ?? 0.07,
+		u_contour: params.contour ?? 0.4,
+		u_angle: params.angle ?? 70,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const gemSmokeDefaultColors = ['#333333', '#e7e6df'];
+
+export function toGemSmokeUniforms(
+	params: GemSmokeSvelteProps,
+	assets?: { image?: HTMLImageElement; hasImage?: boolean }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? 0.6,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source = params.colors && params.colors.length > 0 ? params.colors : gemSmokeDefaultColors;
+	const capped = source.slice(0, gemSmokeMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_image: assets?.image,
+		u_isImage: assets?.hasImage ?? false,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#f0efea'),
+		u_colorInner: getShaderColorFromString(params.colorInner ?? '#fafaf5'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_shape: GemSmokeShapes[params.shape ?? 'diamond'],
+		u_innerDistortion: params.innerDistortion ?? 0.8,
+		u_outerDistortion: params.outerDistortion ?? 0.6,
+		u_outerGlow: params.outerGlow ?? 0.55,
+		u_innerGlow: params.innerGlow ?? 1,
+		u_offset: params.offset ?? 0,
+		u_angle: params.angle ?? 0,
+		u_size: params.size ?? 0.8,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
 function setMinImageSize(img: HTMLImageElement) {
 	if (img.naturalWidth < 1024 && img.naturalHeight < 1024) {
 		if (img.naturalWidth < 1 || img.naturalHeight < 1) return;
@@ -1033,3 +1638,61 @@ export async function processShaderUniforms(
 
 	return processedUniforms;
 }
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Image preprocessing caches for shaders that need expensive pre-pass work
+// (Heatmap, LiquidMetal). Each unique source URL is processed exactly once
+// per page session; subsequent calls reuse the cached HTMLImageElement.
+//
+// Use `preloadHeatmap(url)` / `preloadLiquidMetal(url)` / `preloadGemSmoke(url)`
+// to warm the cache during page idle time so the first hover is instant.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const heatmapImageCache = new Map<string, Promise<HTMLImageElement>>();
+const liquidMetalImageCache = new Map<string, Promise<HTMLImageElement>>();
+const gemSmokeImageCache = new Map<string, Promise<HTMLImageElement>>();
+
+function loadProcessedImage(
+	source: string,
+	cache: Map<string, Promise<HTMLImageElement>>,
+	process: (file: string) => Promise<{ blob?: Blob; pngBlob?: Blob }>
+): Promise<HTMLImageElement> {
+	const cached = cache.get(source);
+	if (cached) return cached;
+	const promise = (async () => {
+		const result = await process(source);
+		const blob = result.blob ?? result.pngBlob;
+		if (!blob) throw new Error(`Processing returned no blob for ${source}`);
+		const objectUrl = URL.createObjectURL(blob);
+		try {
+			return await new Promise<HTMLImageElement>((resolve, reject) => {
+				const img = new Image();
+				img.onload = () => resolve(img);
+				img.onerror = () => reject(new Error(`Failed to load processed image for ${source}`));
+				img.src = objectUrl;
+			});
+		} finally {
+			queueMicrotask(() => URL.revokeObjectURL(objectUrl));
+		}
+	})();
+	cache.set(source, promise);
+	promise.catch(() => cache.delete(source));
+	return promise;
+}
+
+/** Process and cache a Heatmap source image. Returns the processed HTMLImageElement. */
+export function preloadHeatmap(source: string): Promise<HTMLImageElement> {
+	return loadProcessedImage(source, heatmapImageCache, async (s) => toProcessedHeatmap(s));
+}
+
+/** Process and cache a LiquidMetal source image. Returns the processed HTMLImageElement. */
+export function preloadLiquidMetal(source: string): Promise<HTMLImageElement> {
+	return loadProcessedImage(source, liquidMetalImageCache, async (s) => toProcessedLiquidMetal(s));
+}
+
+/** Process and cache a GemSmoke source image. Returns the processed HTMLImageElement. */
+export function preloadGemSmoke(source: string): Promise<HTMLImageElement> {
+	return loadProcessedImage(source, gemSmokeImageCache, async (s) => toProcessedGemSmoke(s));
+}
+

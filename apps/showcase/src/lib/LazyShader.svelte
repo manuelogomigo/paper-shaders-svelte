@@ -13,7 +13,7 @@
 		component: ShaderComponent,
 		image,
 		alt,
-		width = 640,
+		width = 480,
 		height = 480,
 	}: Props = $props();
 

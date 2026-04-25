@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { FlutedGlass } from "@devmischief/shaders-svelte";
+    import { FlutedGlass, PulsingBorder } from "@devmischief/shaders-svelte";
 
     type Exploration = {
         id: string;
@@ -134,7 +134,7 @@
                 {metas.length} explorations
             </span>
         </header>
-
+        
         <div
             class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3"
         >

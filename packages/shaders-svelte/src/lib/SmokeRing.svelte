@@ -2,16 +2,16 @@
 	import { onDestroy } from "svelte";
 	import type { HTMLAttributes } from "svelte/elements";
 	import {
-		emptyPixel,
-		halftoneDotsFragmentShader,
+		getShaderNoiseTexture,
+		smokeRingFragmentShader,
 		ShaderMount,
 		type ShaderMountUniforms,
 	} from "@paper-design/shaders";
 	import {
 		processShaderUniforms,
 		toCssSize,
-		toHalftoneDotsUniforms,
-		type HalftoneDotsSvelteProps,
+		toSmokeRingUniforms,
+		type SmokeRingSvelteProps,
 		type ShaderDimensions,
 	} from "./internal/common";
 
@@ -20,35 +20,29 @@
 		"type" | "class" | "style"
 	>;
 
-	type HalftoneDotsProps = {
+	type SmokeRingProps = {
 		width?: ShaderDimensions;
 		height?: ShaderDimensions;
-		image?: HalftoneDotsSvelteProps["image"];
-		colorBack?: HalftoneDotsSvelteProps["colorBack"];
-		colorFront?: HalftoneDotsSvelteProps["colorFront"];
-		originalColors?: HalftoneDotsSvelteProps["originalColors"];
-		type?: HalftoneDotsSvelteProps["type"];
-		inverted?: HalftoneDotsSvelteProps["inverted"];
-		grid?: HalftoneDotsSvelteProps["grid"];
-		size?: HalftoneDotsSvelteProps["size"];
-		radius?: HalftoneDotsSvelteProps["radius"];
-		contrast?: HalftoneDotsSvelteProps["contrast"];
-		grainMixer?: HalftoneDotsSvelteProps["grainMixer"];
-		grainOverlay?: HalftoneDotsSvelteProps["grainOverlay"];
-		grainSize?: HalftoneDotsSvelteProps["grainSize"];
-		scale?: HalftoneDotsSvelteProps["scale"];
-		rotation?: HalftoneDotsSvelteProps["rotation"];
-		offsetX?: HalftoneDotsSvelteProps["offsetX"];
-		offsetY?: HalftoneDotsSvelteProps["offsetY"];
-		fit?: HalftoneDotsSvelteProps["fit"];
-		worldWidth?: HalftoneDotsSvelteProps["worldWidth"];
-		worldHeight?: HalftoneDotsSvelteProps["worldHeight"];
-		originX?: HalftoneDotsSvelteProps["originX"];
-		originY?: HalftoneDotsSvelteProps["originY"];
-		speed?: HalftoneDotsSvelteProps["speed"];
-		frame?: HalftoneDotsSvelteProps["frame"];
-		minPixelRatio?: HalftoneDotsSvelteProps["minPixelRatio"];
-		maxPixelCount?: HalftoneDotsSvelteProps["maxPixelCount"];
+		colors?: SmokeRingSvelteProps["colors"];
+		colorBack?: SmokeRingSvelteProps["colorBack"];
+		noiseScale?: SmokeRingSvelteProps["noiseScale"];
+		thickness?: SmokeRingSvelteProps["thickness"];
+		radius?: SmokeRingSvelteProps["radius"];
+		innerShape?: SmokeRingSvelteProps["innerShape"];
+		noiseIterations?: SmokeRingSvelteProps["noiseIterations"];
+		scale?: SmokeRingSvelteProps["scale"];
+		rotation?: SmokeRingSvelteProps["rotation"];
+		offsetX?: SmokeRingSvelteProps["offsetX"];
+		offsetY?: SmokeRingSvelteProps["offsetY"];
+		fit?: SmokeRingSvelteProps["fit"];
+		worldWidth?: SmokeRingSvelteProps["worldWidth"];
+		worldHeight?: SmokeRingSvelteProps["worldHeight"];
+		originX?: SmokeRingSvelteProps["originX"];
+		originY?: SmokeRingSvelteProps["originY"];
+		speed?: SmokeRingSvelteProps["speed"];
+		frame?: SmokeRingSvelteProps["frame"];
+		minPixelRatio?: SmokeRingSvelteProps["minPixelRatio"];
+		maxPixelCount?: SmokeRingSvelteProps["maxPixelCount"];
 		class?: HTMLAttributes<HTMLDivElement>["class"];
 		style?: HTMLAttributes<HTMLDivElement>["style"];
 	} & DivRestProps;
@@ -56,64 +50,52 @@
 	let {
 		width = "100%",
 		height = 320,
-		image = "/assets/flowers.webp",
-		colorBack = "#f2f1e8",
-		colorFront = "#2b2b2b",
-		originalColors = false,
-		type = "gooey",
-		inverted = false,
-		grid = "hex",
-		size = 0.5,
-		radius = 1.25,
-		contrast = 0.4,
-		grainMixer = 0.2,
-		grainOverlay = 0.2,
-		grainSize = 0.5,
-		scale = 1,
+		colors,
+		colorBack = "#000000",
+		noiseScale = 3,
+		thickness = 0.65,
+		radius = 0.25,
+		innerShape = 0.7,
+		noiseIterations = 8,
+		scale = 0.8,
 		rotation = 0,
 		offsetX = 0,
 		offsetY = 0,
-		fit = "cover",
+		fit = "contain",
 		worldWidth = 0,
 		worldHeight = 0,
 		originX = 0.5,
 		originY = 0.5,
-		speed = 0,
+		speed = 0.5,
 		frame = 0,
 		minPixelRatio = 2,
 		maxPixelCount = 1920 * 1080 * 4,
 		class: className,
 		style: styleValue,
 		...restProps
-	}: HalftoneDotsProps = $props();
+	}: SmokeRingProps = $props();
 
 	const hostStyle = $derived.by(() => {
 		const styles: string[] = [];
 		if (width !== undefined)
 			styles.push(`width:${toCssSize(width, "100%")}`);
 		if (height !== undefined)
-			styles.push(`height:${toCssSize(height, "320px")}`);
+			styles.push(`height:${toCssSize(height, "100%")}`);
 		if (typeof styleValue === "string" && styleValue.trim().length > 0)
 			styles.push(styleValue.trim());
 		return styles.join(";");
 	});
 
 	const uniformsInput = $derived.by(() => {
-		const base = toHalftoneDotsUniforms(
+		return toSmokeRingUniforms(
 			{
-				image,
+				colors,
 				colorBack,
-				colorFront,
-				originalColors,
-				type,
-				inverted,
-				grid,
-				size,
+				noiseScale,
+				thickness,
 				radius,
-				contrast,
-				grainMixer,
-				grainOverlay,
-				grainSize,
+				innerShape,
+				noiseIterations,
 				scale,
 				rotation,
 				offsetX,
@@ -124,12 +106,10 @@
 				originX,
 				originY,
 			},
-			{ image: undefined },
-		);
-		return {
-			...base,
-			u_image: image || emptyPixel,
-		} as Record<string, unknown>;
+			{
+				noiseTexture: getShaderNoiseTexture(),
+			},
+		) as Record<string, unknown>;
 	});
 
 	let uniforms = $state<ShaderMountUniforms | undefined>(undefined);
@@ -154,20 +134,20 @@
 		if (!uniforms) return;
 		shader = new ShaderMount(
 			host,
-			halftoneDotsFragmentShader,
+			smokeRingFragmentShader,
 			uniforms,
 			undefined,
 			speed,
 			frame,
 			minPixelRatio,
 			maxPixelCount,
-			["u_image"],
 		);
 	});
 
 	$effect(() => {
-		if (!shader || !uniforms) return;
-		shader.setUniforms(uniforms);
+		const next = uniforms;
+		if (!shader || !next) return;
+		shader.setUniforms(next);
 	});
 
 	$effect(() => {

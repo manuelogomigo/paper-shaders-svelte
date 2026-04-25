@@ -42,7 +42,7 @@ This package includes `@paper-design/shaders` as a dependency, so users do not n
 />
 
 <PaperTexture
-	image="https://paper.design/flowers.webp"
+	image="/assets/flowers.webp"
 	colorBack="#ffffff"
 	colorFront="#9fadbc"
 	contrast={0.3}
@@ -127,42 +127,64 @@ optimizeDeps: {
 
 Components:
 
+- `ColorPanels`
 - `Dithering`
 - `DotGrid`
 - `DotOrbit`
 - `FlutedGlass`
+- `GemSmoke`
+- `GodRays`
 - `GrainGradient`
 - `HalftoneCMYK`
 - `HalftoneDots`
+- `Heatmap`
 - `ImageDithering`
+- `LiquidMetal`
 - `MeshGradient`
+- `Metaballs`
 - `NeuroNoise`
 - `PaperTexture`
+- `PerlinNoise`
+- `PulsingBorder`
+- `SimplexNoise`
+- `SmokeRing`
 - `Spiral`
 - `StaticMeshGradient`
 - `StaticRadialGradient`
 - `Swirl`
+- `Voronoi`
 - `Warp`
 - `Water`
 - `Waves`
 
 Types:
 
+- `ColorPanelsSvelteProps`
 - `DitheringSvelteProps`
 - `DotGridSvelteProps`
 - `DotOrbitSvelteProps`
 - `FlutedGlassSvelteProps`
+- `GemSmokeSvelteProps`
+- `GodRaysSvelteProps`
 - `GrainGradientSvelteProps`
 - `HalftoneCMYKSvelteProps`
 - `HalftoneDotsSvelteProps`
+- `HeatmapSvelteProps`
 - `ImageDitheringSvelteProps`
+- `LiquidMetalSvelteProps`
 - `MeshGradientSvelteProps`
+- `MetaballsSvelteProps`
 - `NeuroNoiseSvelteProps`
 - `PaperTextureSvelteProps`
+- `PerlinNoiseSvelteProps`
+- `PulsingBorderSvelteProps`
+- `SimplexNoiseSvelteProps`
+- `SmokeRingSvelteProps`
 - `SpiralSvelteProps`
 - `StaticMeshGradientSvelteProps`
 - `StaticRadialGradientSvelteProps`
 - `SwirlSvelteProps`
+- `VoronoiSvelteProps`
 - `WarpSvelteProps`
 - `WaterSvelteProps`
 - `WavesSvelteProps`

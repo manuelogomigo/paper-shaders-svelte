@@ -66,7 +66,7 @@
 	let {
 		width = "100%",
 		height = 320,
-		image = "https://paper.design/flowers.webp",
+		image = "/assets/flowers.webp",
 		colorBack = "#fbfaf4",
 		colorC = "#00b3ff",
 		colorM = "#fc4f9d",
