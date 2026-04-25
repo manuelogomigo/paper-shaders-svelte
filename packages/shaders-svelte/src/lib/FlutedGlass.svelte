@@ -4,7 +4,6 @@
 	import {
 		emptyPixel,
 		flutedGlassFragmentShader,
-		getShaderNoiseTexture,
 		ShaderMount,
 		type ShaderMountUniforms,
 	} from "@paper-design/shaders";
@@ -154,7 +153,6 @@
 			},
 			{
 				image: undefined,
-				noiseTexture: getShaderNoiseTexture(),
 			},
 		);
 		return {

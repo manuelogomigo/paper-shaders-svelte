@@ -1,18 +1,31 @@
 <script lang="ts">
     import type { Component } from "svelte";
+    import LazyShader from "$lib/LazyShader.svelte";
     import {
         Dithering,
+        DotGrid,
+        DotOrbit,
         FlutedGlass,
+        GrainGradient,
         HalftoneCMYK,
         HalftoneDots,
         ImageDithering,
+        MeshGradient,
+        NeuroNoise,
         PaperTexture,
+        Spiral,
+        StaticMeshGradient,
+        StaticRadialGradient,
+        Swirl,
+        Warp,
         Water,
+        Waves,
     } from "@devmischief/shaders-svelte";
 
     type ReadyShader = {
         name: string;
         href: string;
+        image?: string;
         component: Component<{ width: number; height: number }>;
         status: "ready";
     };
@@ -28,6 +41,7 @@
         {
             name: "Paper Texture",
             href: "/paper-texture",
+            image: "/assets/paper-texture.png",
             component: PaperTexture,
             status: "ready",
         },
@@ -35,25 +49,29 @@
             name: "Fluted Glass",
             href: "/fluted-glass",
             component: FlutedGlass,
+            image: "/assets/fluted-glass.png",
             status: "ready",
         },
-        { name: "Water", href: "/water", component: Water, status: "ready" },
+        { name: "Water", href: "/water", component: Water, image: "/assets/water.png", status: "ready" },
         {
             name: "Image Dithering",
             href: "/image-dithering",
             component: ImageDithering,
+            image: "/assets/image-dithering.png",
             status: "ready",
         },
         {
             name: "Halftone Dots",
             href: "/halftone-dots",
             component: HalftoneDots,
+            image: "/assets/halftone-dots.png",
             status: "ready",
         },
         {
             name: "Halftone CMYK",
             href: "/halftone-cmyk",
             component: HalftoneCMYK,
+            image: "/assets/halftone-cmyk.png",
             status: "ready",
         },
     ];
@@ -66,22 +84,89 @@
 
     const effects: ShaderCard[] = [
         {
+            name: "Mesh Gradient",
+            href: "/mesh-gradient",
+            component: MeshGradient,
+            image: "/assets/mesh-gradient.png",
+            status: "ready",
+        },
+        {
+            name: "Static Mesh Gradient",
+            href: "/static-mesh-gradient",
+            component: StaticMeshGradient,
+            image: "/assets/static-mesh-gradient.png",
+            status: "ready",
+        },
+        {
+            name: "Static Radial Gradient",
+            href: "/static-radial-gradient",
+            component: StaticRadialGradient,
+            image: "/assets/static-radial-gradient.png",
+            status: "ready",
+        },
+        {
             name: "Dithering",
             href: "/dithering",
             component: Dithering,
+            image: "/assets/dithering.png",
             status: "ready",
         },
-        { name: "Mesh Gradient", status: "coming-soon" },
-        { name: "Static Mesh Gradient", status: "coming-soon" },
-        { name: "Static Radial Gradient", status: "coming-soon" },
-        { name: "Grain Gradient", status: "coming-soon" },
-        { name: "Dot Orbit", status: "coming-soon" },
-        { name: "Dot Grid", status: "coming-soon" },
-        { name: "Warp", status: "coming-soon" },
-        { name: "Spiral", status: "coming-soon" },
-        { name: "Swirl", status: "coming-soon" },
-        { name: "Waves", status: "coming-soon" },
-        { name: "Neuro Noise", status: "coming-soon" },
+        {
+            name: "Grain Gradient",
+            href: "/grain-gradient",
+            component: GrainGradient,
+            image: "/assets/grain-gradient.png",
+            status: "ready",
+        },
+        {
+            name: "Dot Orbit",
+            href: "/dot-orbit",
+            component: DotOrbit,
+            image: "/assets/dot-orbit.png",
+            status: "ready",
+        },
+        {
+            name: "Dot Grid",
+            href: "/dot-grid",
+            component: DotGrid,
+            status: "ready",
+            image: "/assets/dot-grid.png",
+        },
+        {
+            name: "Warp",
+            href: "/warp",
+            component: Warp,
+            status: "ready",
+            image: "/assets/warp.png",
+        },
+        {
+            name: "Spiral",
+            href: "/spiral",
+            component: Spiral,
+            status: "ready",
+            image: "/assets/spiral.png",
+        },
+        {
+            name: "Swirl",
+            href: "/swirl",
+            component: Swirl,
+            status: "ready",
+            image: "/assets/swirl.png",
+        },
+        {
+            name: "Waves",
+            href: "/waves",
+            component: Waves,
+            status: "ready",
+            image: "/assets/waves.png",
+        },
+        {
+            name: "Neuro Noise",
+            href: "/neuro-noise",
+            component: NeuroNoise,
+            image: "/assets/neuro-noise.png",
+            status: "ready",
+        },
         { name: "Perlin Noise", status: "coming-soon" },
         { name: "Simplex Noise", status: "coming-soon" },
         { name: "Voronoi", status: "coming-soon" },
@@ -174,7 +259,12 @@
             </h1>
             <p class="mt-5 max-w-md text-base text-pg-text-2 sm:text-lg">
                 Ultra-fast, zero-dependency shaders for your Svelte projects —
-                handcrafted at devmischief hq.
+                built on <a
+                    target="_blank"
+                    href="https://www.npmjs.com/package/@paper-design/shaders"
+                    class="transition-colors hover:text-pg-text-bright hover:underline"
+                    >@paper-design/shaders</a
+                >.
             </p>
 
             <div
@@ -249,12 +339,22 @@
                                     href={shader.href}
                                 >
                                     <div
-                                        class="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-pg-divider bg-pg-surface transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-pg-border group-hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)] group-focus-visible:border-pg-text-bright"
+                                        class="relative flex aspect-3/3 items-center justify-center overflow-hidden rounded-xl border border-pg-divider bg-pg-surface transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-pg-border group-hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)] group-focus-visible:border-pg-text-bright"
                                     >
-                                        <ShaderPreview
-                                            width={640}
-                                            height={480}
-                                        />
+                                        {#if shader.image}
+                                            <LazyShader
+                                                component={ShaderPreview}
+                                                image={shader.image}
+                                                alt={shader.name}
+                                                width={640}
+                                                height={480}
+                                            />
+                                        {:else}
+                                            <ShaderPreview
+                                                width={640}
+                                                height={480}
+                                            />
+                                        {/if}
                                     </div>
                                     <div
                                         class="flex items-center justify-between"
@@ -278,7 +378,7 @@
                                     aria-disabled="true"
                                 >
                                     <div
-                                        class="coming-soon-tile relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-dashed border-pg-border-2 bg-pg-surface/40"
+                                        class="coming-soon-tile relative flex aspect-3/3 items-center justify-center overflow-hidden rounded-xl border border-dashed border-pg-border-2 bg-pg-surface/40"
                                     >
                                         <span
                                             class="relative rounded-full border border-pg-border-2 bg-pg-bg/80 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-pg-text-2 backdrop-blur-sm"

@@ -1,20 +1,41 @@
 import {
 	defaultPatternSizing,
+	dotOrbitMeta,
 	emptyPixel,
+	grainGradientMeta,
+	meshGradientMeta,
+	staticMeshGradientMeta,
+	staticRadialGradientMeta,
+	swirlMeta,
+	warpMeta,
 	type DitheringParams,
+	type DotGridParams,
+	type DotOrbitParams,
 	type FlutedGlassParams,
+	type GrainGradientParams,
 	type HalftoneCmykParams,
 	type HalftoneDotsParams,
 	type ImageDitheringParams,
+	type MeshGradientParams,
+	type NeuroNoiseParams,
 	type PaperTextureParams,
+	type StaticMeshGradientParams,
+	type SpiralParams,
+	type StaticRadialGradientParams,
+	type SwirlParams,
+	type WarpParams,
 	type WaterParams,
+	type WavesParams,
 	DitheringShapes,
 	DitheringTypes,
+	DotGridShapes,
 	GlassDistortionShapes,
 	GlassGridShapes,
+	GrainGradientShapes,
 	HalftoneCmykTypes,
 	HalftoneDotsGrids,
 	HalftoneDotsTypes,
+	WarpPatterns,
 	getShaderColorFromString,
 	ShaderFitOptions,
 	type ShaderMountUniforms
@@ -66,6 +87,83 @@ export type HalftoneDotsSvelteProps = HalftoneDotsParams & {
 };
 
 export type HalftoneCMYKSvelteProps = HalftoneCmykParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type MeshGradientSvelteProps = MeshGradientParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type StaticMeshGradientSvelteProps = StaticMeshGradientParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type StaticRadialGradientSvelteProps = StaticRadialGradientParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type GrainGradientSvelteProps = GrainGradientParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type DotOrbitSvelteProps = DotOrbitParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type DotGridSvelteProps = DotGridParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type WarpSvelteProps = WarpParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type SpiralSvelteProps = SpiralParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type SwirlSvelteProps = SwirlParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type WavesSvelteProps = WavesParams & {
+	width?: ShaderDimensions;
+	height?: ShaderDimensions;
+	minPixelRatio?: number;
+	maxPixelCount?: number;
+};
+
+export type NeuroNoiseSvelteProps = NeuroNoiseParams & {
 	width?: ShaderDimensions;
 	height?: ShaderDimensions;
 	minPixelRatio?: number;
@@ -157,7 +255,7 @@ export function toPaperTextureUniforms(
 
 export function toFlutedGlassUniforms(
 	params: FlutedGlassSvelteProps,
-	assets?: { image?: HTMLImageElement; noiseTexture?: HTMLImageElement }
+	assets?: { image?: HTMLImageElement }
 ): ShaderMountUniforms {
 	const sizing = {
 		...defaultPatternSizing,
@@ -175,7 +273,6 @@ export function toFlutedGlassUniforms(
 
 	return {
 		u_image: assets?.image,
-		u_noiseTexture: assets?.noiseTexture,
 		u_colorBack: getShaderColorFromString(params.colorBack ?? '#00000000'),
 		u_colorShadow: getShaderColorFromString(params.colorShadow ?? '#000000'),
 		u_colorHighlight: getShaderColorFromString(params.colorHighlight ?? '#ffffff'),
@@ -370,6 +467,460 @@ export function toHalftoneCMYKUniforms(
 		u_grainMixer: params.grainMixer ?? 0,
 		u_grainOverlay: params.grainOverlay ?? 0,
 		u_grainSize: params.grainSize ?? 0.5,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const meshGradientDefaultColors = ['#e0eaff', '#241d9a', '#f75092', '#9f50d3'];
+
+export function toMeshGradientUniforms(params: MeshGradientSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source = params.colors && params.colors.length > 0 ? params.colors : meshGradientDefaultColors;
+	const capped = source.slice(0, meshGradientMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_distortion: params.distortion ?? 0.8,
+		u_swirl: params.swirl ?? 0.1,
+		u_grainMixer: params.grainMixer ?? 0,
+		u_grainOverlay: params.grainOverlay ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const staticMeshGradientDefaultColors = ['#ffad0a', '#6200ff', '#e2a3ff', '#ff99fd'];
+
+export function toStaticMeshGradientUniforms(
+	params: StaticMeshGradientSvelteProps
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? 270,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : staticMeshGradientDefaultColors;
+	const capped = source.slice(0, staticMeshGradientMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_positions: params.positions ?? 2,
+		u_waveX: params.waveX ?? 1,
+		u_waveXShift: params.waveXShift ?? 0.6,
+		u_waveY: params.waveY ?? 1,
+		u_waveYShift: params.waveYShift ?? 0.21,
+		u_mixing: params.mixing ?? 0.93,
+		u_grainMixer: params.grainMixer ?? 0,
+		u_grainOverlay: params.grainOverlay ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const staticRadialGradientDefaultColors = ['#00bbff', '#00ffe1', '#ffffff'];
+
+export function toStaticRadialGradientUniforms(
+	params: StaticRadialGradientSvelteProps
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : staticRadialGradientDefaultColors;
+	const capped = source.slice(0, staticRadialGradientMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_radius: params.radius ?? 0.8,
+		u_focalDistance: params.focalDistance ?? 0.99,
+		u_focalAngle: params.focalAngle ?? 0,
+		u_falloff: params.falloff ?? 0.24,
+		u_mixing: params.mixing ?? 0.5,
+		u_distortion: params.distortion ?? 0,
+		u_distortionShift: params.distortionShift ?? 0,
+		u_distortionFreq: params.distortionFreq ?? 12,
+		u_grainMixer: params.grainMixer ?? 0,
+		u_grainOverlay: params.grainOverlay ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const grainGradientDefaultColors = ['#7300ff', '#eba8ff', '#00bfff', '#2b00ff'];
+
+export function toGrainGradientUniforms(
+	params: GrainGradientSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : grainGradientDefaultColors;
+	const capped = source.slice(0, grainGradientMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_softness: params.softness ?? 0.5,
+		u_intensity: params.intensity ?? 0.5,
+		u_noise: params.noise ?? 0.25,
+		u_shape: GrainGradientShapes[params.shape ?? 'corners'],
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const dotOrbitDefaultColors = ['#ffc96b', '#ff6200', '#ff2f00', '#421100', '#1a0000'];
+
+export function toDotOrbitUniforms(
+	params: DotOrbitSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source =
+		params.colors && params.colors.length > 0 ? params.colors : dotOrbitDefaultColors;
+	const capped = source.slice(0, dotOrbitMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_stepsPerColor: params.stepsPerColor ?? 4,
+		u_size: params.size ?? 1,
+		u_sizeRange: params.sizeRange ?? 0,
+		u_spreading: params.spreading ?? 1,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+export function toDotGridUniforms(params: DotGridSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	return {
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colorFill: getShaderColorFromString(params.colorFill ?? '#ffffff'),
+		u_colorStroke: getShaderColorFromString(params.colorStroke ?? '#ffaa00'),
+		u_dotSize: params.size ?? 2,
+		u_gapX: params.gapX ?? 32,
+		u_gapY: params.gapY ?? 32,
+		u_strokeWidth: params.strokeWidth ?? 0,
+		u_sizeRange: params.sizeRange ?? 0,
+		u_opacityRange: params.opacityRange ?? 0,
+		u_shape: DotGridShapes[params.shape ?? 'circle'],
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const warpDefaultColors = ['#121212', '#9470ff', '#121212', '#8838ff'];
+
+export function toWarpUniforms(
+	params: WarpSvelteProps,
+	assets?: { noiseTexture?: HTMLImageElement }
+): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source = params.colors && params.colors.length > 0 ? params.colors : warpDefaultColors;
+	const capped = source.slice(0, warpMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_noiseTexture: assets?.noiseTexture,
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_proportion: params.proportion ?? 0.45,
+		u_softness: params.softness ?? 1,
+		u_shape: WarpPatterns[params.shape ?? 'checks'],
+		u_shapeScale: params.shapeScale ?? 0.1,
+		u_distortion: params.distortion ?? 0.25,
+		u_swirl: params.swirl ?? 0.8,
+		u_swirlIterations: params.swirlIterations ?? 10,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+export function toSpiralUniforms(params: SpiralSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	return {
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#001429'),
+		u_colorFront: getShaderColorFromString(params.colorFront ?? '#7ad1ff'),
+		u_density: params.density ?? 1,
+		u_distortion: params.distortion ?? 0,
+		u_strokeWidth: params.strokeWidth ?? 0.5,
+		u_strokeTaper: params.strokeTaper ?? 0,
+		u_strokeCap: params.strokeCap ?? 0,
+		u_noise: params.noise ?? 0,
+		u_noiseFrequency: params.noiseFrequency ?? 0,
+		u_softness: params.softness ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+const swirlDefaultColors = ['#ffd1d1', '#ff8a8a', '#660000'];
+
+export function toSwirlUniforms(params: SwirlSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? 'contain',
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	const source = params.colors && params.colors.length > 0 ? params.colors : swirlDefaultColors;
+	const capped = source.slice(0, swirlMeta.maxColorCount);
+	const u_colors = capped.map((c) => getShaderColorFromString(c));
+
+	return {
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#330000'),
+		u_colors,
+		u_colorsCount: u_colors.length,
+		u_bandCount: params.bandCount ?? 4,
+		u_twist: params.twist ?? 0.1,
+		u_center: params.center ?? 0.2,
+		u_proportion: params.proportion ?? 0.5,
+		u_softness: params.softness ?? 0,
+		u_noise: params.noise ?? 0.2,
+		u_noiseFrequency: params.noiseFrequency ?? 0.4,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+export function toWavesUniforms(params: WavesSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? 0.6,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	return {
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_colorFront: getShaderColorFromString(params.colorFront ?? '#ffbb00'),
+		u_shape: params.shape ?? 1,
+		u_frequency: params.frequency ?? 0.5,
+		u_amplitude: params.amplitude ?? 0.5,
+		u_spacing: params.spacing ?? 1.2,
+		u_proportion: params.proportion ?? 0.1,
+		u_softness: params.softness ?? 0,
+		u_fit: ShaderFitOptions[sizing.fit],
+		u_scale: sizing.scale,
+		u_rotation: sizing.rotation,
+		u_originX: sizing.originX,
+		u_originY: sizing.originY,
+		u_offsetX: sizing.offsetX,
+		u_offsetY: sizing.offsetY,
+		u_worldWidth: sizing.worldWidth,
+		u_worldHeight: sizing.worldHeight
+	};
+}
+
+export function toNeuroNoiseUniforms(params: NeuroNoiseSvelteProps): ShaderMountUniforms {
+	const sizing = {
+		...defaultPatternSizing,
+		fit: params.fit ?? defaultPatternSizing.fit,
+		scale: params.scale ?? defaultPatternSizing.scale,
+		rotation: params.rotation ?? defaultPatternSizing.rotation,
+		offsetX: params.offsetX ?? defaultPatternSizing.offsetX,
+		offsetY: params.offsetY ?? defaultPatternSizing.offsetY,
+		originX: params.originX ?? defaultPatternSizing.originX,
+		originY: params.originY ?? defaultPatternSizing.originY,
+		worldWidth: params.worldWidth ?? defaultPatternSizing.worldWidth,
+		worldHeight: params.worldHeight ?? defaultPatternSizing.worldHeight
+	};
+
+	return {
+		u_colorFront: getShaderColorFromString(params.colorFront ?? '#ffffff'),
+		u_colorMid: getShaderColorFromString(params.colorMid ?? '#47a6ff'),
+		u_colorBack: getShaderColorFromString(params.colorBack ?? '#000000'),
+		u_brightness: params.brightness ?? 0.05,
+		u_contrast: params.contrast ?? 0.3,
 		u_fit: ShaderFitOptions[sizing.fit],
 		u_scale: sizing.scale,
 		u_rotation: sizing.rotation,

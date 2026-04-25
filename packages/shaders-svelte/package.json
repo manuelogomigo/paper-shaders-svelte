@@ -2,6 +2,14 @@
 	"name": "@devmischief/shaders-svelte",
 	"version": "0.0.4",
 	"description": "Svelte components for @paper-design/shaders",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/manuelogomigo/paper-shaders-svelte.git"
+	},
+	"homepage": "https://github.com/manuelogomigo/paper-shaders-svelte#readme",
+	"bugs": {
+		"url": "https://github.com/manuelogomigo/paper-shaders-svelte/issues"
+	},
 	"type": "module",
 	"svelte": "./dist/index.js",
 	"types": "./dist/index.d.ts",

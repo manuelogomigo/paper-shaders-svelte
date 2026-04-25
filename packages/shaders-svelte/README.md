@@ -14,7 +14,7 @@ This package includes `@paper-design/shaders` as a dependency, so users do not n
 
 ```svelte
 <script lang="ts">
-	import { Dithering, PaperTexture } from '@devmischief/shaders-svelte';
+	import { Dithering, MeshGradient, PaperTexture } from '@devmischief/shaders-svelte';
 </script>
 
 <Dithering
@@ -28,6 +28,17 @@ This package includes `@paper-design/shaders` as a dependency, so users do not n
 	speed={1}
 	scale={0.8}
 	offsetX={-0.02}
+/>
+
+<MeshGradient
+	width={1280}
+	height={720}
+	colors={['#e0eaff', '#241d9a', '#f75092', '#9f50d3']}
+	distortion={0.8}
+	swirl={0.1}
+	grainMixer={0}
+	grainOverlay={0}
+	speed={1}
 />
 
 <PaperTexture
@@ -114,8 +125,48 @@ optimizeDeps: {
 
 ## Exports
 
+Components:
+
 - `Dithering`
+- `DotGrid`
+- `DotOrbit`
+- `FlutedGlass`
+- `GrainGradient`
+- `HalftoneCMYK`
+- `HalftoneDots`
+- `ImageDithering`
+- `MeshGradient`
+- `NeuroNoise`
 - `PaperTexture`
+- `Spiral`
+- `StaticMeshGradient`
+- `StaticRadialGradient`
+- `Swirl`
+- `Warp`
+- `Water`
+- `Waves`
+
+Types:
+
+- `DitheringSvelteProps`
+- `DotGridSvelteProps`
+- `DotOrbitSvelteProps`
+- `FlutedGlassSvelteProps`
+- `GrainGradientSvelteProps`
+- `HalftoneCMYKSvelteProps`
+- `HalftoneDotsSvelteProps`
+- `ImageDitheringSvelteProps`
+- `MeshGradientSvelteProps`
+- `NeuroNoiseSvelteProps`
+- `PaperTextureSvelteProps`
+- `SpiralSvelteProps`
+- `StaticMeshGradientSvelteProps`
+- `StaticRadialGradientSvelteProps`
+- `SwirlSvelteProps`
+- `WarpSvelteProps`
+- `WaterSvelteProps`
+- `WavesSvelteProps`
+- `ShaderDimensions`
 
 ## Development
 
