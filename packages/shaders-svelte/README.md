@@ -1,194 +1,242 @@
 # @devmischief/shaders-svelte
 
-Svelte wrapper components for [`@paper-design/shaders`](https://www.npmjs.com/package/@paper-design/shaders).
+[![npm version](https://img.shields.io/npm/v/@devmischief/shaders-svelte.svg?color=ff3e00&label=npm)](https://www.npmjs.com/package/@devmischief/shaders-svelte)
+[![license](https://img.shields.io/npm/l/@devmischief/shaders-svelte.svg)](https://github.com/manuelogomigo/paper-shaders-svelte/blob/main/LICENSE)
+[![Svelte 5](https://img.shields.io/badge/Svelte-5-ff3e00.svg)](https://svelte.dev)
+[![GitHub](https://img.shields.io/badge/GitHub-paper--shaders--svelte-181717.svg?logo=github)](https://github.com/manuelogomigo/paper-shaders-svelte)
+
+> Svelte 5 components for [`@paper-design/shaders`](https://www.npmjs.com/package/@paper-design/shaders) — 28 GPU-accelerated WebGL shaders with a clean, typed API.
+
+A faithful port of [Paper Design's React shader components](https://www.npmjs.com/package/@paper-design/shaders-react) to Svelte 5, built on the same [`@paper-design/shaders`](https://www.npmjs.com/package/@paper-design/shaders) WebGL engine.
+
+---
 
 ## Install
 
 ```bash
 pnpm add @devmischief/shaders-svelte
+# or
+npm i @devmischief/shaders-svelte
+# or
+yarn add @devmischief/shaders-svelte
 ```
 
-This package includes `@paper-design/shaders` as a dependency, so users do not need to install it separately.
+> The underlying `@paper-design/shaders` package is included as a dependency — no extra install needed.
 
-## Usage
+---
+
+## Quick start
 
 ```svelte
 <script lang="ts">
-	import { Dithering, MeshGradient, PaperTexture } from '@devmischief/shaders-svelte';
+	import { MeshGradient } from '@devmischief/shaders-svelte';
 </script>
 
-<Dithering
-	width={1280}
-	height={720}
-	colorBack="#301c2a"
-	colorFront="#56ae6c"
-	shape="warp"
-	type="4x4"
-	size={1}
-	speed={1}
-	scale={0.8}
-	offsetX={-0.02}
-/>
-
 <MeshGradient
-	width={1280}
-	height={720}
+	width="100%"
+	height={400}
 	colors={['#e0eaff', '#241d9a', '#f75092', '#9f50d3']}
 	distortion={0.8}
 	swirl={0.1}
-	grainMixer={0}
-	grainOverlay={0}
 	speed={1}
 />
-
-<PaperTexture
-	image="/assets/flowers.webp"
-	colorBack="#ffffff"
-	colorFront="#9fadbc"
-	contrast={0.3}
-	roughness={0.4}
-	fiber={0.3}
-	fiberSize={0.2}
-	crumples={0.3}
-	crumpleSize={0.35}
-	folds={0.65}
-	foldCount={5}
-	drops={0.2}
-	fade={0}
-	seed={6}
-	scale={0.6}
-	fit="cover"
-/>
 ```
 
-Default usage is also supported:
+Every component renders into a `<div>` that you can class, style, and absolutely position like any other DOM element.
+
+---
+
+## Components
+
+### Image filters
+
+Apply effects to your own images.
+
+| Component | Description |
+|-----------|-------------|
+| `Dithering` | Animated 2-color dithering with multiple pattern sources |
+| `FlutedGlass` | Glass refraction patterns over an image |
+| `HalftoneCMYK` | CMYK halftone print effect |
+| `HalftoneDots` | Halftone dot pattern in customizable grids |
+| `ImageDithering` | Multi-color dithering applied to images |
+| `PaperTexture` | Paper / canvas texture overlay with crumples and folds |
+| `Water` | Animated caustic water surface over an image |
+
+### Logo animations
+
+Apply animated effects to logo shapes (require pre-processing — see [Performance](#performance)).
+
+| Component | Description |
+|-----------|-------------|
+| `GemSmoke` | Glassy gem-like surface with smoky noise behind |
+| `Heatmap` | Thermal heatmap effect flowing through a shape |
+| `LiquidMetal` | Chromatic liquid-metal stripes warped by shape edges |
+
+### Effects & gradients
+
+Generative shaders that fill the canvas without an input image.
+
+| Component | Description |
+|-----------|-------------|
+| `ColorPanels` | Glowing translucent 3D panels rotating around an axis |
+| `DotGrid` | Static dot/diamond/square/triangle grid pattern |
+| `DotOrbit` | Animated orbiting multi-color dots |
+| `GodRays` | Animated rays of light radiating from center |
+| `GrainGradient` | Grainy multi-color gradient with shape morphs |
+| `MeshGradient` | Flowing multi-spot gradient with organic distortion |
+| `Metaballs` | Up to 20 gooey colored balls merging into blobs |
+| `NeuroNoise` | Glowing neural / web-like noise structure |
+| `PerlinNoise` | Classic 3D Perlin noise with FBM controls |
+| `PulsingBorder` | Luminous animated gradient contour |
+| `SimplexNoise` | Multi-color gradient mapped onto Simplex noise |
+| `SmokeRing` | Smoky radial ring with layered noise |
+| `Spiral` | Animated spiral with stroke and noise controls |
+| `StaticMeshGradient` | Static mesh gradient with two-direction warping |
+| `StaticRadialGradient` | Static radial gradient with focal-point control |
+| `Swirl` | Animated bands of color twisting from center |
+| `Voronoi` | Anti-aliased animated Voronoi cells |
+| `Warp` | Color fields warped by noise and swirls |
+| `Waves` | Static line pattern morphing zigzag → sine → irregular |
+
+**28 components total**, mirroring the Paper React catalog 1:1.
+
+---
+
+## Common props
+
+Almost every component accepts these props. Defaults are chosen to match Paper's preset for that shader.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `width` | `number \| string` | CSS width (default `"100%"`) |
+| `height` | `number \| string` | CSS height (default `320`) |
+| `speed` | `number` | Animation speed. `0` stops the loop |
+| `frame` | `number` | Animation timestamp in ms (deterministic when `speed=0`) |
+| `scale` | `number` | Zoom level (`0.01` to `4`) |
+| `rotation` | `number` | Rotation in degrees (`0` to `360`) |
+| `offsetX` / `offsetY` | `number` | Center offset (`-1` to `1`) |
+| `fit` | `"none" \| "contain" \| "cover"` | Canvas fit mode |
+| `originX` / `originY` | `number` | Reference point for world sizing (`0` to `1`) |
+| `worldWidth` / `worldHeight` | `number` | Virtual graphic dimensions before fit |
+| `minPixelRatio` | `number` | Minimum render DPR (default `2` for crisp antialiasing) |
+| `maxPixelCount` | `number` | Render budget cap (default ≈ 8.3M pixels) |
+
+Standard `<div>` attributes (`class`, `style`, `id`, `aria-*`, etc.) pass through to the host element.
+
+---
+
+## Performance
+
+Each shader instance creates its own **WebGL context**, and browsers cap active contexts at ~16 per tab. If you render many shaders on a single page, follow these patterns.
+
+### Lazy-mount on hover
+
+Don't mount every shader at page load — only when the user can see them. The simplest pattern is to swap a static image for the live shader on `mouseenter` and dispose on `mouseleave`:
 
 ```svelte
-<Dithering />
+<script lang="ts">
+	import { MeshGradient } from '@devmischief/shaders-svelte';
+
+	let active = $state(false);
+</script>
+
+<div
+	onmouseenter={() => (active = true)}
+	onmouseleave={() => (active = false)}
+>
+	<img src="/preview.png" alt="" />
+	{#if active}
+		<MeshGradient />
+	{/if}
+</div>
 ```
 
-## Troubleshooting (Vite)
+This keeps idle cards as zero-cost `<img>` tags and limits live WebGL contexts to whatever the user is actually hovering.
 
-If you see an error like `No loader is configured for ".svelte" files` during dependency optimization,
-exclude this package from Vite optimizeDeps:
+### Preloading expensive shaders
+
+Three shaders pre-process their input image on the CPU before WebGL takes over (~150–250ms per image): `Heatmap`, `LiquidMetal`, and `GemSmoke`. You can warm their caches during page idle time so the first hover is instant:
+
+```svelte
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { preloadHeatmap, preloadLiquidMetal, preloadGemSmoke } from '@devmischief/shaders-svelte';
+
+	onMount(() => {
+		const logo = '/your-logo.svg';
+		const schedule = window.requestIdleCallback ?? ((cb) => setTimeout(cb, 0));
+		schedule(() => {
+			void preloadHeatmap(logo).catch(() => {});
+			void preloadLiquidMetal(logo).catch(() => {});
+			void preloadGemSmoke(logo).catch(() => {});
+		});
+	});
+</script>
+```
+
+Each unique URL is processed exactly once per page session. The processed image is cached at the module level — different component instances using the same URL share the same processed result.
+
+---
+
+## TypeScript
+
+Every component exports a corresponding props type.
 
 ```ts
+import type { MeshGradientSvelteProps, ShaderDimensions } from '@devmischief/shaders-svelte';
+
+const myConfig: MeshGradientSvelteProps = {
+	colors: ['#fff', '#000'],
+	distortion: 0.5,
+	speed: 1,
+};
+```
+
+Available types: `ColorPanelsSvelteProps`, `DitheringSvelteProps`, `DotGridSvelteProps`, `DotOrbitSvelteProps`, `FlutedGlassSvelteProps`, `GemSmokeSvelteProps`, `GodRaysSvelteProps`, `GrainGradientSvelteProps`, `HalftoneCMYKSvelteProps`, `HalftoneDotsSvelteProps`, `HeatmapSvelteProps`, `ImageDitheringSvelteProps`, `LiquidMetalSvelteProps`, `MeshGradientSvelteProps`, `MetaballsSvelteProps`, `NeuroNoiseSvelteProps`, `PaperTextureSvelteProps`, `PerlinNoiseSvelteProps`, `PulsingBorderSvelteProps`, `ShaderDimensions`, `SimplexNoiseSvelteProps`, `SmokeRingSvelteProps`, `SpiralSvelteProps`, `StaticMeshGradientSvelteProps`, `StaticRadialGradientSvelteProps`, `SwirlSvelteProps`, `VoronoiSvelteProps`, `WarpSvelteProps`, `WaterSvelteProps`, `WavesSvelteProps`.
+
+---
+
+## SvelteKit / SSR
+
+All components are SSR-safe — they render an empty `<div>` on the server and mount the shader after hydration. No special config required.
+
+If you see Vite errors like `No loader is configured for ".svelte" files` during dependency optimization, exclude this package from `optimizeDeps`:
+
+```ts
+// vite.config.ts
 import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
-	plugins: [svelte()],
+	plugins: [sveltekit()],
 	optimizeDeps: {
-		exclude: ['@devmischief/shaders-svelte']
-	}
+		exclude: ['@devmischief/shaders-svelte'],
+	},
 });
 ```
 
-This is a Vite/esbuild prebundle behavior in some setups. The package structure is standard for Svelte libraries.
+---
 
-## AI Prompt (Copy/Paste)
+## Migrating from `@paper-design/shaders-react`
 
-Use this prompt with Claude/Cursor/GPT when integrating this package:
+The Svelte API mirrors the React API name-for-name. The main differences:
 
-```txt
-Integrate @devmischief/shaders-svelte into my Svelte app.
+| React | Svelte |
+|-------|--------|
+| `import { Mesh } from '@paper-design/shaders-react'` | `import { Mesh } from '@devmischief/shaders-svelte'` |
+| `<Mesh colors={[…]} speed={1} />` | `<Mesh colors={[…]} speed={1} />` |
+| `className="…"` | `class="…"` |
+| `style={{ … }}` | `style="…"` |
 
-Requirements:
-1) Install the package and use the Dithering component in my main page.
-2) Keep layout stable and visible by setting explicit container height or Dithering height.
-3) If Vite optimizeDeps errors mention ".svelte" loader, update vite config:
-   optimizeDeps.exclude = ['@devmischief/shaders-svelte']
-4) Do not break existing styles or routing.
-5) After changes, run project checks/build and summarize what changed.
-```
+Defaults match Paper's playground presets exactly, so most components render the same out of the box without explicit props.
 
-## Release Notes Template
+---
 
-Use this for your next release description:
+## Acknowledgments
 
-```md
-### @devmischief/shaders-svelte - patch release
+Built on top of the excellent [`@paper-design/shaders`](https://github.com/paper-design/shaders) by the Paper Design team. All credit for the GLSL shader sources, default presets, and visual design goes to them — this package only provides the Svelte 5 wrapper layer.
 
-- Fix `Dithering` defaults so `<Dithering />` renders with a visible height out of the box.
-- Improve prop forwarding so `class` and standard div attributes work correctly.
-- Update docs with Vite troubleshooting for optimizeDeps/esbuild `.svelte` loader errors.
-- Add copy/paste AI integration prompt for faster setup in existing Svelte apps.
-
-If your app shows `No loader is configured for ".svelte" files`, add:
-
-```ts
-optimizeDeps: {
-  exclude: ['@devmischief/shaders-svelte']
-}
-```
-```
-
-## Exports
-
-Components:
-
-- `ColorPanels`
-- `Dithering`
-- `DotGrid`
-- `DotOrbit`
-- `FlutedGlass`
-- `GemSmoke`
-- `GodRays`
-- `GrainGradient`
-- `HalftoneCMYK`
-- `HalftoneDots`
-- `Heatmap`
-- `ImageDithering`
-- `LiquidMetal`
-- `MeshGradient`
-- `Metaballs`
-- `NeuroNoise`
-- `PaperTexture`
-- `PerlinNoise`
-- `PulsingBorder`
-- `SimplexNoise`
-- `SmokeRing`
-- `Spiral`
-- `StaticMeshGradient`
-- `StaticRadialGradient`
-- `Swirl`
-- `Voronoi`
-- `Warp`
-- `Water`
-- `Waves`
-
-Types:
-
-- `ColorPanelsSvelteProps`
-- `DitheringSvelteProps`
-- `DotGridSvelteProps`
-- `DotOrbitSvelteProps`
-- `FlutedGlassSvelteProps`
-- `GemSmokeSvelteProps`
-- `GodRaysSvelteProps`
-- `GrainGradientSvelteProps`
-- `HalftoneCMYKSvelteProps`
-- `HalftoneDotsSvelteProps`
-- `HeatmapSvelteProps`
-- `ImageDitheringSvelteProps`
-- `LiquidMetalSvelteProps`
-- `MeshGradientSvelteProps`
-- `MetaballsSvelteProps`
-- `NeuroNoiseSvelteProps`
-- `PaperTextureSvelteProps`
-- `PerlinNoiseSvelteProps`
-- `PulsingBorderSvelteProps`
-- `SimplexNoiseSvelteProps`
-- `SmokeRingSvelteProps`
-- `SpiralSvelteProps`
-- `StaticMeshGradientSvelteProps`
-- `StaticRadialGradientSvelteProps`
-- `SwirlSvelteProps`
-- `VoronoiSvelteProps`
-- `WarpSvelteProps`
-- `WaterSvelteProps`
-- `WavesSvelteProps`
-- `ShaderDimensions`
+---
 
 ## Development
 
@@ -197,3 +245,11 @@ pnpm install
 pnpm check
 pnpm build
 ```
+
+The package itself is in `packages/shaders-svelte/`. The `apps/showcase/` folder contains a SvelteKit demo app showing every shader in action.
+
+---
+
+## License
+
+[MIT](https://github.com/manuelogomigo/paper-shaders-svelte/blob/main/LICENSE) © DevMischief
