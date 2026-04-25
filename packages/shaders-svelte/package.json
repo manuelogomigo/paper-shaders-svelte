@@ -1,6 +1,6 @@
 {
 	"name": "@devmischief/shaders-svelte",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "Svelte components for @paper-design/shaders",
 	"repository": {
 		"type": "git",
