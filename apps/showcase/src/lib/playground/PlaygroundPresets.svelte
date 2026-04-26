@@ -8,7 +8,8 @@
 	let { names, active, onApply }: Props = $props();
 
 	function capitalize(s: string) {
-		return s.charAt(0).toUpperCase() + s.slice(1);
+		const formatted = s.replace(/_/g, '-');
+		return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 	}
 </script>
 
