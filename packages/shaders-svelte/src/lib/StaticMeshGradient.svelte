@@ -129,8 +129,9 @@
 	});
 
 	$effect(() => {
+		const next = uniforms;
 		if (!shader) return;
-		shader.setUniforms(uniforms);
+		shader.setUniforms(next);
 	});
 
 	$effect(() => {

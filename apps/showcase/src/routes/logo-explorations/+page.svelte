@@ -104,6 +104,24 @@
             name: "Shell Prompt",
             direction: "$ devmischief — run-this-command energy.",
         },
+        {
+            id: "019",
+            name: "Dymo Label Tape",
+            direction:
+                "Embossed plastic label, hand-stuck, slightly crooked. Pure workshop.",
+        },
+        {
+            id: "020",
+            name: "Hazard Tape",
+            direction:
+                "Caution: mischief in progress. Industrial loud, not SaaS quiet.",
+        },
+        {
+            id: "021",
+            name: "Sketchpad Mark",
+            direction:
+                "Drawn with a marker on a napkin. Genuinely undesigned.",
+        },
     ];
 </script>
 
@@ -380,6 +398,62 @@
                                 >
                                 devmischief
                             </span>
+                        {:else if i === 18}
+                            <!-- 019 · Dymo Label Tape -->
+                            <div class="dymo-strip relative">
+                                <span
+                                    class="dymo-text font-mono text-base font-extrabold uppercase tracking-[0.22em]"
+                                >
+                                    devmischief
+                                </span>
+                            </div>
+                        {:else if i === 19}
+                            <!-- 020 · Hazard Tape -->
+                            <div class="flex flex-col items-center gap-2">
+                                <span
+                                    class="text-3xl font-extrabold uppercase tracking-tight text-pg-text-bright"
+                                >
+                                    devmischief
+                                </span>
+                                <span
+                                    class="hazard-tape h-[7px] w-[280px]"
+                                    aria-hidden="true"
+                                ></span>
+                                <span
+                                    class="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-pg-text-muted"
+                                >
+                                    caution · mischief in progress
+                                </span>
+                            </div>
+                        {:else if i === 20}
+                            <!-- 021 · Sketchpad Mark -->
+                            <div
+                                class="sketchpad flex flex-col items-center"
+                            >
+                                <span
+                                    class="sketch-mark text-4xl text-pg-text-bright"
+                                >
+                                    devmischief
+                                </span>
+                                <svg
+                                    class="sketch-underline -mt-1 w-[230px]"
+                                    viewBox="0 0 230 12"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M 6 7 Q 30 3, 60 5 T 110 6 T 165 4 T 224 5"
+                                        stroke="currentColor"
+                                        stroke-width="1.6"
+                                        stroke-linecap="round"
+                                    />
+                                </svg>
+                                <span
+                                    class="sketch-doodle mt-1 text-xs text-pg-text-2"
+                                >
+                                    ✱ a maker lab
+                                </span>
+                            </div>
                         {/if}
                     </div>
 
@@ -553,5 +627,92 @@
     .prompt-mark {
         display: inline-block;
         animation: blink 1.8s steps(2) infinite;
+    }
+
+    /* 019 — Dymo embossed label tape */
+    .dymo-strip {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.05) 0%,
+                transparent 35%,
+                rgba(0, 0, 0, 0.25) 100%
+            ),
+            #0a0a0a;
+        border-radius: 8px;
+        padding: 18px 32px;
+        transform: rotate(-3.5deg);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 -2px 2px rgba(0, 0, 0, 0.6),
+            0 10px 28px -6px rgba(0, 0, 0, 0.7),
+            0 3px 6px rgba(0, 0, 0, 0.5);
+        transition: transform 400ms ease;
+    }
+
+    .dymo-text {
+        color: #f5f5f5;
+        text-shadow:
+            0 -1px 0 rgba(255, 255, 255, 0.35),
+            0 1px 1px rgba(0, 0, 0, 0.7),
+            1px 0 0 rgba(0, 0, 0, 0.25),
+            -1px 0 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .group:hover .dymo-strip {
+        transform: rotate(-1.5deg) scale(1.04);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.12),
+            inset 0 -2px 2px rgba(0, 0, 0, 0.6),
+            0 14px 36px -6px rgba(0, 0, 0, 0.75),
+            0 5px 10px rgba(0, 0, 0, 0.55);
+    }
+
+    /* 020 — Hazard tape underline */
+    .hazard-tape {
+        background: repeating-linear-gradient(
+            -45deg,
+            #facc15 0px,
+            #facc15 9px,
+            #0a0a0a 9px,
+            #0a0a0a 18px
+        );
+        border-radius: 1px;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 3px 8px rgba(0, 0, 0, 0.45);
+        transition: transform 300ms ease;
+    }
+
+    .group:hover .hazard-tape {
+        transform: scaleX(1.05);
+    }
+
+    /* 021 — Sketchpad / napkin marker */
+    .sketch-mark {
+        font-family:
+            "Marker Felt", "Bradley Hand", "Permanent Marker",
+            "Comic Sans MS", cursive;
+        font-weight: 600;
+        letter-spacing: 0.005em;
+        transform: rotate(-1.8deg);
+        display: inline-block;
+    }
+
+    .sketch-underline {
+        color: var(--pg-text-bright);
+        transform: rotate(-0.8deg);
+        transition: transform 400ms ease;
+    }
+
+    .group:hover .sketch-underline {
+        transform: rotate(-1.8deg) translateX(-2px);
+    }
+
+    .sketch-doodle {
+        font-family:
+            "Marker Felt", "Bradley Hand", "Permanent Marker",
+            "Comic Sans MS", cursive;
+        transform: rotate(1deg);
     }
 </style>
