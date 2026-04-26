@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import type { Component } from "svelte";
     import LazyShader from "$lib/LazyShader.svelte";
-    import DevMischiefMark from "$lib/DevMischiefMark.svelte";
+    import SiteHeader from "$lib/SiteHeader.svelte";
     import {
         preloadGemSmoke,
         preloadHeatmap,
@@ -310,31 +310,7 @@
     <div
         class="mx-auto box-content max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12"
     >
-        <header class="mb-20 flex items-center justify-between sm:mb-24">
-            <a
-                href="/"
-                class="group flex items-center outline-none"
-                aria-label="devmischief home"
-            >
-                <DevMischiefMark
-                    class="dm-header-mark h-9 w-auto text-pg-text-bright"
-                />
-            </a>
-            <nav class="flex items-center gap-6 text-sm text-pg-text-nav">
-                <a
-                    href="/"
-                    class="transition-colors hover:text-pg-text-nav-hover"
-                >
-                    shaders
-                </a>
-                <a
-                    href="https://devmischief.com"
-                    class="transition-colors hover:text-pg-text-nav-hover"
-                >
-                    hq
-                </a>
-            </nav>
-        </header>
+        <SiteHeader class="mb-20 sm:mb-24" />
 
         <section class="mb-20 flex flex-col items-center text-center sm:mb-28">
             <span
@@ -347,7 +323,7 @@
                 class="max-w-3xl text-4xl font-light tracking-tight text-pg-text-bright sm:text-5xl lg:text-6xl"
                 style="font-feature-settings: 'ss01'; word-spacing: 0.08em;"
             >
-                shaders for svelte
+               Paper Shaders for Svelte
             </h1>
             <p class="mt-5 max-w-md text-base text-pg-text-2 sm:text-lg">
                 Ultra-fast, zero-dependency shaders for your Svelte projects —

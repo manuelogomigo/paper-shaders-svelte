@@ -2,6 +2,7 @@
 	import type { Snippet } from "svelte";
 	import { page } from "$app/state";
 	import { getShaderNeighbours } from "$lib/shaders";
+	import SiteHeader from "$lib/SiteHeader.svelte";
 	import type { Prop } from "./types";
 
 	type Props = {
@@ -46,48 +47,7 @@
 	<div
 		class="mx-auto box-content max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16 lg:px-12"
 	>
-		<header class="mb-16 flex items-center justify-between sm:mb-20">
-			<a
-				href="/"
-				class="group flex items-center gap-2.5 outline-none"
-				aria-label="devmischief home"
-			>
-				<span
-					class="inline-grid size-7 grid-cols-3 grid-rows-3 gap-0.5"
-					aria-hidden="true"
-				>
-					{#each Array(9) as _, i}
-						{#if i === 2}
-							<span
-								class="rounded-[1px] bg-pg-text-bright rotate-12 transition-transform duration-500 ease-out group-hover:translate-x-[2px] group-hover:translate-y-[-2px] group-hover:rotate-[-18deg]"
-							></span>
-						{:else}
-							<span class="rounded-[1px] bg-pg-text-bright"
-							></span>
-						{/if}
-					{/each}
-				</span>
-				<span
-					class="text-base font-medium tracking-tight text-pg-text-bright"
-				>
-					devmischief
-				</span>
-			</a>
-			<nav class="flex items-center gap-6 text-sm text-pg-text-nav">
-				<a
-					href="/"
-					class="transition-colors hover:text-pg-text-nav-hover"
-				>
-					shaders
-				</a>
-				<a
-					href="https://devmischief.com"
-					class="transition-colors hover:text-pg-text-nav-hover"
-				>
-					hq
-				</a>
-			</nav>
-		</header>
+		<SiteHeader class="mb-20 sm:mb-24" />
 
 		<section class="mb-12 flex flex-col gap-5 sm:mb-16">
 			<div

@@ -1,0 +1,16 @@
+{
+  "name": "Paper Shaders Svelte Agent API Catalog",
+  "description": "Discovery document for agents consuming shaders.devmischief.com.",
+  "resources": [
+    {
+      "rel": "service-doc",
+      "href": "https://shaders.devmischief.com/docs/api.md",
+      "title": "Service Documentation"
+    },
+    {
+      "rel": "sitemap",
+      "href": "https://shaders.devmischief.com/sitemap.xml",
+      "title": "Sitemap"
+    }
+  ]
+}
