@@ -1,11 +1,27 @@
 <script lang="ts">
     import { FlutedGlass, PulsingBorder } from "@devmischief/shaders-svelte";
+    import DevMischiefMark from "$lib/DevMischiefMark.svelte";
 
     type Exploration = {
         id: string;
         name: string;
         direction: string;
     };
+
+    const chunkLetters = "DEVMISCHIEF".split("");
+    const chunkTransforms = [
+        "rotate(-3deg) translateY(0)",
+        "rotate(2deg) translateY(-2px)",
+        "rotate(-1deg) translateY(1px)",
+        "rotate(1deg) translateY(-1px)",
+        "rotate(-2deg) translateY(0)",
+        "rotate(0deg) translateY(1px)",
+        "rotate(2deg) translateY(0)",
+        "rotate(-2deg) translateY(-1px)",
+        "rotate(1deg) translateY(0)",
+        "rotate(-1deg) translateY(1px)",
+        "rotate(3deg) translateY(-1px)",
+    ];
 
     const metas: Exploration[] = [
         {
@@ -121,6 +137,18 @@
             name: "Sketchpad Mark",
             direction:
                 "Drawn with a marker on a napkin. Genuinely undesigned.",
+        },
+        {
+            id: "022",
+            name: "Chunk Marker",
+            direction:
+                "Heavy hand-lettered caps. Comic-book confidence, indie-game energy.",
+        },
+        {
+            id: "023",
+            name: "Mascot Mark",
+            direction:
+                "Friendly blob, two big eyes, a sparkle of mischief. The answer.",
         },
     ];
 </script>
@@ -454,6 +482,27 @@
                                     ✱ a maker lab
                                 </span>
                             </div>
+                        {:else if i === 21}
+                            <!-- 022 · Chunk Marker -->
+                            <div class="chunk-wrap">
+                                <span class="chunk-mark">
+                                    {#each chunkLetters as char, idx}
+                                        <span
+                                            class="chunk-letter"
+                                            style="transform: {chunkTransforms[
+                                                idx
+                                            ]}"
+                                        >
+                                            {char}
+                                        </span>
+                                    {/each}
+                                </span>
+                            </div>
+                        {:else if i === 22}
+                            <!-- 023 · Mascot Mark -->
+                            <DevMischiefMark
+                                class="w-[280px] max-w-full"
+                            />
                         {/if}
                     </div>
 
@@ -492,6 +541,8 @@
 </main>
 
 <style>
+    @import url("https://fonts.googleapis.com/css2?family=Bangers&display=swap");
+
     :global(body) {
         margin: 0;
         background: var(--pg-bg);
@@ -714,5 +765,60 @@
             "Marker Felt", "Bradley Hand", "Permanent Marker",
             "Comic Sans MS", cursive;
         transform: rotate(1deg);
+    }
+
+    /* 022 — Chunk Marker, hand-lettered comic-book caps */
+    .chunk-wrap {
+        display: inline-block;
+        transform: rotate(-2deg);
+        transition: transform 400ms ease;
+    }
+
+    .group:hover .chunk-wrap {
+        transform: rotate(-1deg) scale(1.04);
+    }
+
+    .chunk-mark {
+        font-family: "Bangers", "Impact", "Anton", system-ui, sans-serif;
+        font-size: 3.5rem;
+        line-height: 1;
+        color: var(--pg-text-bright);
+        letter-spacing: 0.03em;
+        display: inline-block;
+        text-shadow:
+            2px 3px 0 rgba(0, 0, 0, 0.55),
+            -1px -1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .chunk-letter {
+        display: inline-block;
+        transform-origin: center;
+        transition: transform 250ms ease;
+    }
+
+    .group:hover .chunk-letter:nth-child(odd) {
+        animation: chunk-jiggle-a 600ms ease infinite alternate;
+    }
+
+    .group:hover .chunk-letter:nth-child(even) {
+        animation: chunk-jiggle-b 600ms ease infinite alternate;
+    }
+
+    @keyframes chunk-jiggle-a {
+        from {
+            transform: translateY(0) rotate(-2deg);
+        }
+        to {
+            transform: translateY(-3px) rotate(2deg);
+        }
+    }
+
+    @keyframes chunk-jiggle-b {
+        from {
+            transform: translateY(-1px) rotate(2deg);
+        }
+        to {
+            transform: translateY(2px) rotate(-3deg);
+        }
     }
 </style>
