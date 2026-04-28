@@ -6,6 +6,7 @@
 		ShaderMount,
 	} from "@paper-design/shaders";
 	import {
+		getEmptyPixelImage,
 		preloadGemSmoke,
 		toCssSize,
 		toGemSmokeUniforms,
@@ -95,6 +96,17 @@
 	});
 
 	let processedImage = $state<HTMLImageElement | undefined>(undefined);
+	let placeholderImage = $state<HTMLImageElement | undefined>(undefined);
+
+	$effect(() => {
+		if (typeof window === "undefined") return;
+		if (placeholderImage) return;
+		void getEmptyPixelImage()
+			.then((img) => {
+				placeholderImage = img;
+			})
+			.catch(() => {});
+	});
 
 	$effect(() => {
 		if (typeof window === "undefined") return;
@@ -144,7 +156,7 @@
 				originY,
 			},
 			{
-				image: hasImage ? processedImage : undefined,
+				image: hasImage ? processedImage : placeholderImage,
 				hasImage,
 			},
 		),
@@ -156,6 +168,10 @@
 	$effect(() => {
 		if (typeof window === "undefined" || !host) return;
 		if (shader) return;
+		// Wait for the placeholder so u_image is always an HTMLImageElement at
+		// construction — otherwise ShaderMount never registers u_imageAspectRatio
+		// and a later upload renders at degenerate UVs.
+		if (!placeholderImage) return;
 		if (image && !processedImage) return;
 		shader = new ShaderMount(
 			host,

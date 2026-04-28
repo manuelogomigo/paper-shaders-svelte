@@ -1,4 +1,5 @@
 # allow crawling everything by default
 User-agent: *
 Disallow:
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 Sitemap: https://shaders.devmischief.com/sitemap.xml

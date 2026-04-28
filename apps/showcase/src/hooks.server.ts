@@ -23,6 +23,12 @@ function decodeEntities(text: string): string {
         .replace(/&#39;/g, "'");
 }
 
+function stripTags(text: string): string {
+    return decodeEntities(text.replace(/<[^>]+>/g, ""))
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
 function htmlToMarkdown(html: string): string {
     const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
     const title = titleMatch ? decodeEntities(titleMatch[1].trim()) : "";
@@ -37,18 +43,44 @@ function htmlToMarkdown(html: string): string {
         .replace(/<footer[\s\S]*?<\/footer>/gi, "");
 
     let markdown = source
+        // Preserve semantic blocks so content doesn't collapse together.
+        .replace(/<(main|section|article|header|aside|div)[^>]*>/gi, "\n\n")
+        .replace(/<\/(main|section|article|header|aside|div)>/gi, "\n\n")
+        .replace(/<(ul|ol)[^>]*>/gi, "\n")
+        .replace(/<\/(ul|ol)>/gi, "\n")
         .replace(/<(h1|h2|h3|h4|h5|h6)[^>]*>([\s\S]*?)<\/\1>/gi, (_, tag, c) => {
             const level = Number(tag[1]);
-            return `\n${"#".repeat(level)} ${decodeEntities(c.replace(/<[^>]+>/g, "").trim())}\n`;
+            const text = stripTags(c);
+            return text ? `\n${"#".repeat(level)} ${text}\n` : "\n";
         })
-        .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, (_, c) => `\n${decodeEntities(c.replace(/<[^>]+>/g, "").trim())}\n`)
+        .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, (_, c) => {
+            const text = stripTags(c);
+            return text ? `\n${text}\n` : "\n";
+        })
         .replace(/<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_, href, text) => {
-            const label = decodeEntities(text.replace(/<[^>]+>/g, "").trim()) || href;
-            return `[${label}](${href})`;
+            const label = stripTags(text) || href;
+            return ` [${label}](${href}) `;
         })
-        .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, c) => `- ${decodeEntities(c.replace(/<[^>]+>/g, "").trim())}\n`)
+        .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, c) => {
+            const text = stripTags(c);
+            return text ? `- ${text}\n` : "";
+        })
         .replace(/<br\s*\/?>/gi, "\n")
         .replace(/<[^>]+>/g, "")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n[ \t]+/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+    // Normalize dense link runs into readable markdown lists.
+    markdown = markdown
+        .replace(/([^\n])\s{2,}\[/g, "$1\n[")
+        .replace(/(\[[^\]]+\]\([^)]+\))(?:\s+\[[^\]]+\]\([^)]+\))+/g, (chunk) => {
+            const links = chunk.match(/\[[^\]]+\]\([^)]+\)/g) ?? [];
+            return `\n${links.map((link) => `- ${link}`).join("\n")}\n`;
+        })
+        .replace(/^(\[[^\]]+\]\([^)]+\))$/gm, "- $1")
+        .replace(/\n(\d+)\n\/\s*\1\n/g, "\n")
         .replace(/\n{3,}/g, "\n\n")
         .trim();
 

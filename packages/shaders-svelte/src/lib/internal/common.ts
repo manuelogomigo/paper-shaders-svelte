@@ -1696,3 +1696,20 @@ export function preloadGemSmoke(source: string): Promise<HTMLImageElement> {
 	return loadProcessedImage(source, gemSmokeImageCache, async (s) => toProcessedGemSmoke(s));
 }
 
+// Loaded once and reused. Used as the initial `u_image` value for image-capable
+// shaders so ShaderMount registers the companion `u_imageAspectRatio` location at
+// construction time. Without this, the location is only registered when the
+// initial value is an HTMLImageElement, so a later upload cannot update the
+// aspect ratio and the image samples at degenerate UVs.
+let emptyPixelImagePromise: Promise<HTMLImageElement> | null = null;
+export function getEmptyPixelImage(): Promise<HTMLImageElement> {
+	if (emptyPixelImagePromise) return emptyPixelImagePromise;
+	emptyPixelImagePromise = new Promise((resolve, reject) => {
+		const img = new Image();
+		img.onload = () => resolve(img);
+		img.onerror = () => reject(new Error('Failed to load empty pixel image'));
+		img.src = emptyPixel;
+	});
+	return emptyPixelImagePromise;
+}
+
