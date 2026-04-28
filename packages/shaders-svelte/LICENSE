@@ -1,0 +1,14 @@
+Copyright (c) 2026 Manuel Ogo (DevMischief)
+
+This package contains original wrapper/integration code for Svelte.
+
+Important dependency notice:
+This package depends on @paper-design/shaders. The upstream package is licensed
+under the PolyForm Shield License 1.0.0:
+https://polyformproject.org/licenses/shield/1.0.0
+
+This package does not relicense or replace the terms of @paper-design/shaders.
+Use of the underlying shader engine remains subject to the upstream license and
+its conditions.
+
+See NOTICE and THIRD_PARTY_LICENSES.md for additional details.

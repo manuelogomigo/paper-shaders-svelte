@@ -252,4 +252,12 @@ The package itself is in `packages/shaders-svelte/`. The `apps/showcase/` folder
 
 ## License
 
-[MIT](https://github.com/manuelogomigo/paper-shaders-svelte/blob/main/LICENSE) © DevMischief
+This package contains original Svelte wrapper/integration code and depends on
+[`@paper-design/shaders`](https://www.npmjs.com/package/@paper-design/shaders).
+
+The upstream shader engine license remains in effect for the underlying
+dependency. See:
+
+- `LICENSE`
+- `NOTICE`
+- `THIRD_PARTY_LICENSES.md`

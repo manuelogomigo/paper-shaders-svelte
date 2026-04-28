@@ -11,7 +11,7 @@
 		"url": "https://github.com/manuelogomigo/paper-shaders-svelte/issues"
 	},
 	"type": "module",
-	"license": "MIT",
+	"license": "SEE LICENSE IN LICENSE",
 	"svelte": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {
@@ -22,7 +22,10 @@
 	},
 	"files": [
 		"dist",
-		"README.md"
+		"README.md",
+		"LICENSE",
+		"NOTICE",
+		"THIRD_PARTY_LICENSES.md"
 	],
 	"scripts": {
 		"build": "svelte-package",

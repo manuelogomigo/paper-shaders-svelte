@@ -1,0 +1,12 @@
+This package provides Svelte wrapper/integration components for the
+@paper-design/shaders engine.
+
+The wrapper code in this repository is original integration work.
+The underlying shader engine is provided by @paper-design/shaders and remains
+subject to its own license terms.
+
+Upstream package:
+- Name: @paper-design/shaders
+- Source: https://github.com/paper-design/shaders
+- License: PolyForm Shield License 1.0.0
+- URL: https://polyformproject.org/licenses/shield/1.0.0
